@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="magentix2-2.01-jar-with-dependencies">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/resources/magentix2-2.01-jar-with-dependencies.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
