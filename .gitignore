@@ -26,3 +26,4 @@ hs_err_pid*
 # Añadidos propios
 *.png
 *.xml
+.idea/*.xml
