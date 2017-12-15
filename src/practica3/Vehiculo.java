@@ -20,7 +20,6 @@ public class Vehiculo extends SingleAgent {
 
     private String password;
     private AgentID controllerID;
-    private SuperMente superMente;
     private int numSensores;
     private String mapa;
     private int status;
