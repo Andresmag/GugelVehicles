@@ -19,9 +19,8 @@ public class Vehiculo extends SingleAgent {
 
 
     private String password;
-    private AgentID controllerID;
+    private AgentID controllerID, supermenteID;
     private int numSensores;
-    private String mapa;
     private int status;
 
    // private GugelCarView view;
@@ -33,11 +32,10 @@ public class Vehiculo extends SingleAgent {
      * @param aid ID del agente
      * @throws Exception si no puede crear el agente
      */
-    public Vehiculo(String map, AgentID aid /* GUI, GugelCarView v*/) throws Exception {
+    public Vehiculo(AgentID aid /* GUI, GugelCarView v*/) throws Exception {
         super(aid);
         controllerID = new AgentID("Girtab");
-        superMente = new SuperMente();
-        mapa = map;
+        supermenteID = new AgentID("Supermente");
        // view = v;
     }
 
