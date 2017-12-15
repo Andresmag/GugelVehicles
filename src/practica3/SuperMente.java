@@ -45,6 +45,10 @@ public class SuperMente extends SingleAgent {
     private int objetivoX;
     private int objetivoY;
 
+    /**
+     * Constructor
+     * @autor Diego Iáñez Ávila
+     */
     SuperMente(AgentID aid) throws Exception {
         super(aid);
 
