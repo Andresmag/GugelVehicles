@@ -1,6 +1,8 @@
 package practica3;
 
 import com.eclipsesource.json.JsonObject;
+import es.upv.dsic.gti_ia.core.AgentID;
+import es.upv.dsic.gti_ia.core.SingleAgent;
 
 import java.util.ArrayList;
 
@@ -10,10 +12,12 @@ import java.util.ArrayList;
  *
  */
 
-public class SuperMente {
+public class SuperMente extends SingleAgent {
 
 
     //DATOS MIEMBROS
+    private AgentID controllerID;
+    /////////////////////////////////////////////
 
     // Dato que nos indica si el agente a alcanzado el objetivo
     private boolean reachedGoal;
@@ -41,7 +45,11 @@ public class SuperMente {
     private int objetivoX;
     private int objetivoY;
 
+    SuperMente(AgentID aid) throws Exception {
+        super(aid);
 
+        controllerID = new AgentID("Girtab");
+    }
 
     public boolean hasReachedGoal() {
         return false;
