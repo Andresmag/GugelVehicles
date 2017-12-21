@@ -1,4 +1,4 @@
-package practica2.GUI;
+package practica3.GUI;
 
 import javax.swing.*;
 import java.awt.*;

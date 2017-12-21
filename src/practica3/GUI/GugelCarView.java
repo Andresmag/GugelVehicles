@@ -1,9 +1,10 @@
-package practica2.GUI;
+package practica3.GUI;
 
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.AgentsConnection;
-import practica2.gugelcar.GugelCar;
-import practica2.gugelcar.Mensajes;
+import practica3.SuperMente;
+import practica3.Vehiculo;
+import practica3.Mensajes;
 
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
@@ -28,7 +29,7 @@ public class GugelCarView extends JFrame {
     private JPanel canvasPanel;
     private TraceMap traceMap;
 
-    private GugelCar gugelcar;
+    private SuperMente superMente;
 
     private String mapaSeleccionado,nombreAgente;
 
@@ -190,11 +191,11 @@ public class GugelCarView extends JFrame {
      */
     private void onEjecutar(){
         try {
-            gugelcar = new GugelCar(mapaSeleccionado, new AgentID(nombreAgente),this);
+            superMente = new SuperMente(mapaSeleccionado, new AgentID(nombreAgente),this);
 
             System.out.println("\n\n-------------------------------\n");
 
-            gugelcar.start();
+            superMente.start();
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -51,7 +51,6 @@ public class Vehiculo extends SingleAgent {
 
         JsonObject jsonLogin = Json.object();
         jsonLogin.add(Mensajes.AGENT_COM_COMMAND, Mensajes.AGENT_COM_LOGIN);
-        jsonLogin.add(Mensajes.AGENT_COM_WORLD, mapa);
         jsonLogin.add(Mensajes.AGENT_COM_SENSOR_RADAR, agentID);
         jsonLogin.add(Mensajes.AGENT_COM_SENSOR_SCANNER, agentID);
 
@@ -77,7 +76,7 @@ public class Vehiculo extends SingleAgent {
      *
      * @author Diego Iáñez Ávila, Andrés Molina López, Jose Luis Martínez Ortiz, Ángel Píñar Rivas
      */
-    @Override
+  /*  @Override
     public void execute(){
         int it=0;
         boolean salir=false;
@@ -124,7 +123,7 @@ public class Vehiculo extends SingleAgent {
      * @author Andrés Molina López
      * @param nextMove indica cual es el string que se va a mandar al servidor
      */
-    private void makeMove(String nextMove) {
+ /*   private void makeMove(String nextMove) {
         if(!nextMove.isEmpty()) {
             boolean resultadoMovimiento = sendCommand(nextMove);
             superMente.refreshMemory(resultadoMovimiento, nextMove);
@@ -136,7 +135,7 @@ public class Vehiculo extends SingleAgent {
      *
      * @author Andrés Molina López
      */
-    private void refuel(){
+ /*   private void refuel(){
         sendCommand(Mensajes.AGENT_COM_ACCION_REFUEL);
         superMente.refreshBatery();
     }
@@ -152,7 +151,7 @@ public class Vehiculo extends SingleAgent {
         //GUI view.printToGeneralMsg("Terminando sesión");
 
         sendCommand(Mensajes.AGENT_COM_LOGOUT);
-        processPerception();
+        //processPerception();
 
         try{
             System.out.println("Recibiendo traza");
@@ -245,7 +244,7 @@ public class Vehiculo extends SingleAgent {
      *
      * @author Diego Iáñez Ávila
      */
-    private void processPerception(){
+  /*  private void processPerception(){
         try {
             // Recibimos los mensajes del servidor en orden
             ArrayList<JsonObject> messages = new ArrayList<>();
@@ -268,5 +267,5 @@ public class Vehiculo extends SingleAgent {
         //GUI  view.updateMap(cerebro.getPosX(), cerebro.getPosY(), cerebro.getCompleteRadar());
     }
 
-
+*/
 }

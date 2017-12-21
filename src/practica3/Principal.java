@@ -26,10 +26,13 @@ public class Principal {
                 Mensajes.AGENT_HOST, Mensajes.AGENT_USER, Mensajes.AGENT_PASS, false);
 
         try {
-            Vehiculo vehiculo = new Vehiculo("map1", new AgentID("coche1")/*GUI,this*/);
+            SuperMente einstein = new SuperMente("map1", new AgentID("Supermente"));
+
+            //Vehiculo vehiculo = new Vehiculo("map1", new AgentID("coche1")/*GUI,this*/);
 
             System.out.println("\n\n-------------------------------\n");
 
+            einstein.start();
             //vehiculo.start();
 
         } catch (Exception e) {
