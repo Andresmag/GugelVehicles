@@ -27,13 +27,13 @@ public class Principal {
 
         try {
             SuperMente einstein = new SuperMente("map1", new AgentID("Supermente"));
-
-            //Vehiculo vehiculo = new Vehiculo("map1", new AgentID("coche1")/*GUI,this*/);
-
-            System.out.println("\n\n-------------------------------\n");
-
             einstein.start();
-            //vehiculo.start();
+
+            for(int i=0; i<4; i++){
+                Vehiculo vehiculo = new Vehiculo(new AgentID("coche" + i));
+                vehiculo.start();
+            }
+
 
         } catch (Exception e) {
             e.printStackTrace();

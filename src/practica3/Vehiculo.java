@@ -20,7 +20,6 @@ public class Vehiculo extends SingleAgent {
 
     private String password;
     private AgentID controllerID, supermenteID;
-    private int numSensores;
     private int status;
 
    // private GugelCarView view;
@@ -32,11 +31,10 @@ public class Vehiculo extends SingleAgent {
      * @param aid ID del agente
      * @throws Exception si no puede crear el agente
      */
-    public Vehiculo(AgentID aid /* GUI, GugelCarView v*/) throws Exception {
+    public Vehiculo(AgentID aid) throws Exception {
         super(aid);
         controllerID = new AgentID("Girtab");
         supermenteID = new AgentID("Supermente");
-       // view = v;
     }
 
     /**
@@ -53,8 +51,6 @@ public class Vehiculo extends SingleAgent {
         jsonLogin.add(Mensajes.AGENT_COM_COMMAND, Mensajes.AGENT_COM_LOGIN);
         jsonLogin.add(Mensajes.AGENT_COM_SENSOR_RADAR, agentID);
         jsonLogin.add(Mensajes.AGENT_COM_SENSOR_SCANNER, agentID);
-
-        numSensores = 2;
 
         sendMessage(jsonLogin.toString());
 
