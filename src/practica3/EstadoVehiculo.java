@@ -2,6 +2,10 @@ package practica3;
 
 import es.upv.dsic.gti_ia.core.AgentID;
 
+/**
+ * @author Jose Luis Martínez Ortiz
+ * Clase para llevar el estado de cada vehículo en supermente.
+ */
 public class EstadoVehiculo {
 
     public AgentID id;
