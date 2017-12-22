@@ -217,36 +217,6 @@ public class Vehiculo extends SingleAgent {
     }
 
     /**
-     * Envía un comando al controlador
-     *
-     * @author Diego Iáñez Ávila, Jose Luis Martínez Ortiz
-     * @param command Comando a enviar
-     * @return true si el controlador respondió con OK al comando
-     */
-    private boolean sendCommand(String command){
-        boolean success = true;
-
-        JsonObject jsonCommand = Json.object();
-        jsonCommand.add(Mensajes.AGENT_COM_COMMAND, command);
-        jsonCommand.add(Mensajes.AGENT_COM_KEY, password);
-
-        sendMessage(jsonCommand.toString());
-
-        try{
-            JsonObject answer = receiveJson();
-            String result = answer.getString(Mensajes.AGENT_COM_RESULT, Mensajes.AGENT_COM_BADMESSAGE);
-
-            if (!result.equals(Mensajes.AGENT_COM_OK))
-                success = false;
-
-        } catch (InterruptedException e){
-            success = false;
-        }
-
-        return success;
-    }
-
-    /**
      * Recibir un mensaje ACL
      *
      * @author Diego Iáñez Ávila
