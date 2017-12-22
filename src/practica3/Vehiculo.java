@@ -64,6 +64,7 @@ public class Vehiculo extends SingleAgent {
             switch (status){
                 case Mensajes.VEHICLE_STATUS_ESCUCHANDO:
                     procesarOrden();
+
                     break;
                 case Mensajes.VEHICLE_STATUS_CONECTADO:
                     String nextAction = superMente.nextAction();
@@ -103,13 +104,15 @@ public class Vehiculo extends SingleAgent {
                 conversationID = inbox.getConversationId();
 
                 if (commando == Mensajes.COMMAND_CONECTAR) {
-                    sendMessage(Mensajes.AGENT_COM_CHECKIN);
+                    sendMessageController(ACLMessage.REQUEST, Mensajes.AGENT_COM_CHECKIN);
                 }
 
                 break;
             case ACLMessage.QUERY_REF:
                 break;
             case ACLMessage.CANCEL:
+                break;
+            case ACLMessage.INFORM:
                 break;
             default:
                 break;
