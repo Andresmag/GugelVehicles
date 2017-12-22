@@ -231,12 +231,19 @@ public class Vehiculo extends SingleAgent {
      * @return El JSON recibido
      * @throws InterruptedException Si hay error al recibir el mensaje
      */
-    private JsonObject receiveJson() throws InterruptedException {
-        ACLMessage inbox = receiveACLMessage();
-        System.out.println("Recibido mensaje " + inbox.getContent());
-        //GUI view.printToGeneralMsg("Recibido mensaje "+ inbox.getContent());
+    private ACLMessage receiveMessage(){
+        ACLMessage inbox = null;
 
-        return Json.parse(inbox.getContent()).asObject();
+        try {
+            inbox = receiveACLMessage();
+            /* Imprimir para debug */
+            System.out.println(inbox.getContent());
+            /**/
+        } catch (InterruptedException e) {
+            System.err.println("Error al recibir mensaje en receiveMessage");
+         }
+
+        return inbox;
     }
 
     /**
