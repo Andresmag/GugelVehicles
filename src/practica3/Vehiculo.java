@@ -21,6 +21,7 @@ public class Vehiculo extends SingleAgent {
     private String password;
     private AgentID controllerID, supermenteID;
     private String conversationID;
+    private String replyWith = null;
     private int status;
 
    // private GugelCarView view;
@@ -192,6 +193,10 @@ public class Vehiculo extends SingleAgent {
         outbox.setSender(getAid());
         outbox.setReceiver(controllerID);
         outbox.setContent(message);
+
+        if (replyWith != null)
+            outbox.setInReplyTo(replyWith);
+
         outbox.setPerformative(performativa);
 
 
@@ -245,11 +250,10 @@ public class Vehiculo extends SingleAgent {
     }
 
     /**
-     * Recibir un mensaje del controlador en formato JSON
+     * Recibir un mensaje ACL
      *
      * @author Diego Iáñez Ávila
-     * @return El JSON recibido
-     * @throws InterruptedException Si hay error al recibir el mensaje
+     * @return El mensaje recibido
      */
     private ACLMessage receiveMessage(){
         ACLMessage inbox = null;
@@ -259,6 +263,9 @@ public class Vehiculo extends SingleAgent {
             /* Imprimir para debug */
             System.out.println(inbox.getContent());
             /**/
+
+            replyWith = inbox.getReplyWith();
+
         } catch (InterruptedException e) {
             System.err.println("Error al recibir mensaje en receiveMessage");
          }
