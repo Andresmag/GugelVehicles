@@ -22,11 +22,11 @@ public enum Mensajes {
     public static final String AGENT_COM_BADMESSAGE = "BAD_MESSAGE";
 
     public static final String AGENT_COM_LOGOUT = "logout";
-    public static final String AGENT_COM_CHECKIN = "checkin";
 
     public static final String AGENT_COM_RESULT = "result";
 
     public static final String AGENT_COM_COMMAND = "command";
+    public static final String AGENT_COM_RESULT = "result";
     public static final String AGENT_COM_KEY = "key";
     public static final String AGENT_COM_WORLD = "world";
     public static final String AGENT_COM_SENSOR_SCANNER = "scanner";
@@ -49,6 +49,4 @@ public enum Mensajes {
     public static final int VEHICLE_STATUS_ESCUCHANDO = 0;
     public static final int VEHICLE_STATUS_CONECTADO = 1;
     public static final int VEHICLE_STATUS_ACTUANDO = 2;
-
-    public static final String COMMAND_CONECTAR = "conectar";
 }

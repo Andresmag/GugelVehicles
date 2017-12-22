@@ -57,28 +57,20 @@ public class Vehiculo extends SingleAgent {
      */
     @Override
     public void execute(){
-        int it=0;
         boolean salir=false;
-        boolean objetivo_bloqueado=false;
 
         while(!salir){
             switch (status){
                 case Mensajes.VEHICLE_STATUS_ESCUCHANDO:
-                    procesarOrden();
+                    String command = procesarOrden();
+                    sendMessageController(ACLMessage.REQUEST, command);
+
+
+                    String answer = procesarOrden();
+                    sendMessageSupermente(ACLMessage.INFORM, answer);
 
                     break;
                 case Mensajes.VEHICLE_STATUS_CONECTADO:
-                    String nextAction = superMente.nextAction();
-                    System.out.println(nextAction);
-
-                    if (nextAction.equals(Mensajes.AGENT_COM_ACCION_REFUEL))
-                        refuel();
-                    else
-                        makeMove(nextAction);
-
-                    status = Mensajes.AGENT_STATUS_PERCIBIENDO;
-                    //Aumenta pasos cuando actúa
-                    it++;
 
                     break;
                 case Mensajes.VEHICLE_STATUS_ACTUANDO:
@@ -95,25 +87,31 @@ public class Vehiculo extends SingleAgent {
      *
      * @author Andrés Molina López
      */
-    private void procesarOrden(){
+    private String procesarOrden(){
         ACLMessage inbox = receiveMessage();
+        JsonObject contenido = Json.parse(inbox.getContent()).asObject();
 
         switch (inbox.getPerformativeInt()){
             case ACLMessage.REQUEST:
-                JsonObject contenido = Json.parse(inbox.getContent()).asObject();
-                String commando = contenido.get(Mensajes.AGENT_COM_COMMAND).asString();
+                String comando = contenido.get(Mensajes.AGENT_COM_COMMAND).asString();
                 conversationID = inbox.getConversationId();
-
-                if (commando == Mensajes.COMMAND_CONECTAR) {
-                    sendMessageController(ACLMessage.REQUEST, Mensajes.AGENT_COM_CHECKIN);
-                }
-
+                return (comando);
                 break;
             case ACLMessage.QUERY_REF:
                 break;
             case ACLMessage.CANCEL:
                 break;
             case ACLMessage.INFORM:
+                String respuesta = contenido.get(Mensajes.AGENT_COM_RESULT).asString();
+                if (respuesta.equals("OK")){
+                    JsonObject capabilities = contenido.get("capabilities").asObject();
+                    int fuel = capabilities.get("fuelrate").asInt();
+                    int range = capabilities.get("range").asInt();
+                    boolean fly = capabilities.get("fly").asBoolean();
+                    if(fly){
+                        return ()
+                    }
+                }
                 break;
             default:
                 break;
@@ -206,7 +204,7 @@ public class Vehiculo extends SingleAgent {
     /**
      * Enviar un mensaje a Supermente
      *
-     * @author Diego Iáñez Ávila
+     * @author Andrés Molina López
      * @param message Mensaje a enviar
      */
     private void sendMessageSupermente(int performativa, String message){
