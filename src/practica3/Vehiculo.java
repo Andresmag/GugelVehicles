@@ -63,7 +63,7 @@ public class Vehiculo extends SingleAgent {
         while(!salir){
             switch (status){
                 case Mensajes.VEHICLE_STATUS_ESCUCHANDO:
-                    escucharMensaje();
+                    procesarOrden();
                     break;
                 case Mensajes.VEHICLE_STATUS_CONECTADO:
                     String nextAction = superMente.nextAction();
@@ -86,6 +86,34 @@ public class Vehiculo extends SingleAgent {
         }
 
         endSession();
+    }
+
+    /**
+     * Metodo para escuchar el mensaje que manda Supermente
+     *
+     * @author Andrés Molina López
+     */
+    private void procesarOrden(){
+        ACLMessage inbox = receiveMessage();
+
+        switch (inbox.getPerformativeInt()){
+            case ACLMessage.REQUEST:
+                JsonObject contenido = Json.parse(inbox.getContent()).asObject();
+                String commando = contenido.get(Mensajes.AGENT_COM_COMMAND).asString();
+                conversationID = inbox.getConversationId();
+
+                if (commando == Mensajes.COMMAND_CONECTAR) {
+                    sendMessage(Mensajes.AGENT_COM_CHECKIN);
+                }
+
+                break;
+            case ACLMessage.QUERY_REF:
+                break;
+            case ACLMessage.CANCEL:
+                break;
+            default:
+                break;
+        }
     }
 
     /**
@@ -156,11 +184,29 @@ public class Vehiculo extends SingleAgent {
      * @author Diego Iáñez Ávila
      * @param message Mensaje a enviar
      */
-    private void sendMessage(String message){
+    private void sendMessageController(int performativa, String message){
         ACLMessage outbox = new ACLMessage();
         outbox.setSender(getAid());
         outbox.setReceiver(controllerID);
         outbox.setContent(message);
+        outbox.setPerformative(performativa);
+
+
+        send(outbox);
+    }
+
+    /**
+     * Enviar un mensaje a Supermente
+     *
+     * @author Diego Iáñez Ávila
+     * @param message Mensaje a enviar
+     */
+    private void sendMessageSupermente(int performativa, String message){
+        ACLMessage outbox = new ACLMessage();
+        outbox.setSender(getAid());
+        outbox.setReceiver(supermenteID);
+        outbox.setContent(message);
+        outbox.setPerformative(performativa);
 
         send(outbox);
     }
