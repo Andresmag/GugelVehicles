@@ -20,6 +20,7 @@ public class Vehiculo extends SingleAgent {
 
     private String password;
     private AgentID controllerID, supermenteID;
+    private String conversationID;
     private int status;
 
    // private GugelCarView view;
@@ -35,36 +36,17 @@ public class Vehiculo extends SingleAgent {
         super(aid);
         controllerID = new AgentID("Girtab");
         supermenteID = new AgentID("Supermente");
+        conversationID = null;
     }
 
     /**
      * Método de inicialización del agente
      *
-     * @author Diego Iáñez Ávila, Jose Luis Martínez Ortiz, Ángel Píñar Rivas
+     * @author Andrés Molina López ft. Diego, Jose y Ángel
      */
     @Override
     public void init(){
-        // Loguearse en el mapa
-        JsonValue agentID = Json.value(getAid().toString());
-
-        JsonObject jsonLogin = Json.object();
-        jsonLogin.add(Mensajes.AGENT_COM_COMMAND, Mensajes.AGENT_COM_LOGIN);
-        jsonLogin.add(Mensajes.AGENT_COM_SENSOR_RADAR, agentID);
-        jsonLogin.add(Mensajes.AGENT_COM_SENSOR_SCANNER, agentID);
-
-        sendMessage(jsonLogin.toString());
-
-        // Recibir y guardar la contraseña
-        try {
-            password = null;
-            while(password == null) {
-                JsonObject answer = receiveJson();
-                password = answer.getString(Mensajes.AGENT_COM_RESULT, null);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        status = Mensajes.AGENT_STATUS_PERCIBIENDO;
+        status = Mensajes.VEHICLE_STATUS_ESCUCHANDO;
     }
 
     /**
@@ -72,7 +54,7 @@ public class Vehiculo extends SingleAgent {
      *
      * @author Diego Iáñez Ávila, Andrés Molina López, Jose Luis Martínez Ortiz, Ángel Píñar Rivas
      */
-  /*  @Override
+    @Override
     public void execute(){
         int it=0;
         boolean salir=false;
@@ -80,17 +62,10 @@ public class Vehiculo extends SingleAgent {
 
         while(!salir){
             switch (status){
-                case Mensajes.AGENT_STATUS_PERCIBIENDO:
-                    processPerception();
-
-
-                    if(superMente.hasReachedGoal() || it>1500 || objetivo_bloqueado){
-                        status = Mensajes.AGENT_STATUS_FINALIZADO;
-                    } else {
-                        status = Mensajes.AGENT_STATUS_ACTUANDO;
-                    }
+                case Mensajes.VEHICLE_STATUS_ESCUCHANDO:
+                    escucharMensaje();
                     break;
-                case Mensajes.AGENT_STATUS_ACTUANDO:
+                case Mensajes.VEHICLE_STATUS_CONECTADO:
                     String nextAction = superMente.nextAction();
                     System.out.println(nextAction);
 
@@ -104,7 +79,7 @@ public class Vehiculo extends SingleAgent {
                     it++;
 
                     break;
-                case Mensajes.AGENT_STATUS_FINALIZADO:
+                case Mensajes.VEHICLE_STATUS_ACTUANDO:
                     salir = true;
                     break;
             }
