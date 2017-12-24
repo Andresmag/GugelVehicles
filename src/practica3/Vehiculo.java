@@ -109,7 +109,12 @@ public class Vehiculo extends SingleAgent {
                     int range = capabilities.get("range").asInt();
                     boolean fly = capabilities.get("fly").asBoolean();
                     if(fly){
-                        return ()
+                        return ("helicoptero");
+                    } else {
+                        if (range > 5) // Está puesto a ojo, no recuerdo que número es realmente
+                            return ("camion");
+                        else
+                            return ("coche");
                     }
                 }
                 break;
