@@ -44,6 +44,11 @@ public enum Mensajes {
     public static final String AGENT_COM_ACCION_MV_SE = "moveSE";
     public static final String AGENT_COM_CHECKIN = "checkin";
 
+    // STRINGS DE TIPO VEHICULO
+    public static final String VEHICLE_TYPE_COCHE = "coche";
+    public static final String VEHICLE_TYPE_HELICOPTERO = "helicoptero";
+    public static final String VEHICLE_TYPE_CAMION = "camion";
+
     // ESTADOS DE GUGEL CAR
     public static final int VEHICLE_STATUS_CHECKIN = 0;
     public static final int VEHICLE_STATUS_CONFIRMANDO_TIPO = 1;

@@ -209,6 +209,19 @@ public class SuperMente extends SingleAgent {
      */
     private void registrarVehiculo(EstadoVehiculo vehiculo){
         sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_CHECKIN), vehiculo.id);
+
+        ACLMessage inbox = receiveMessage();
+        String tipoVehiculo = inbox.getContent();
+
+        if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_HELICOPTERO)){
+            vehiculo.tipoVehiculo = TipoVehiculo.dron;
+        }
+        else if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_CAMION)){
+            vehiculo.tipoVehiculo = TipoVehiculo.camion;
+        }
+        else if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_COCHE)){
+            vehiculo.tipoVehiculo = TipoVehiculo.coche;
+        }
     }
 
     /**

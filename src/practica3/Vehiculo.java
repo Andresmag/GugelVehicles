@@ -132,12 +132,12 @@ public class Vehiculo extends SingleAgent {
                     int range = capabilities.get("range").asInt();
                     boolean fly = capabilities.get("fly").asBoolean();
                     if(fly){
-                        tipo = ("helicoptero");
+                        tipo = (Mensajes.VEHICLE_TYPE_HELICOPTERO);
                     } else {
                         if (range > 5)
-                            tipo = ("camion");
+                            tipo = (Mensajes.VEHICLE_TYPE_CAMION);
                         else
-                            tipo = ("coche");
+                            tipo = (Mensajes.VEHICLE_TYPE_COCHE);
                     }
                 }
             }
