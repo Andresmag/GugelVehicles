@@ -1,13 +1,16 @@
 package practica3;
 
 import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.sun.xml.internal.ws.resources.SenderMessages;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
 import es.upv.dsic.gti_ia.core.ACLMessage;
+import org.codehaus.jettison.json.JSONObject;
 import practica3.GUI.GugelCarView;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 /**
@@ -32,7 +35,10 @@ public class SuperMente extends SingleAgent {
     private ArrayList<EstadoVehiculo> vehiculos;
 
     // Memoria del mundo que ha pisado el agente y donde se encuentra actualmente
-    private int [][] mapaMundo;
+    private int [][] mapaMundo = new int[1000][1000];
+
+    // Batería total en el mundo. Se actualiza cada vez que se procesa la percepción de un vehículo.
+    private int bateriaTotal;
 
     // Memoria interna con las direcciones
     //private final ArrayList<String> direcciones;
@@ -264,6 +270,59 @@ public class SuperMente extends SingleAgent {
         }
 
         return exito;
+    }
+
+    /**
+     * Procesar la percepción recibida de un vehículo
+     * @author Diego Iáñez Ávila
+     */
+    private void procesarPercepcion(EstadoVehiculo vehiculo, String jsonPercepcion){
+        JsonObject percepcion = Json.parse(jsonPercepcion).asObject();
+        JsonObject resultado = percepcion.get(Mensajes.AGENT_COM_RESULT).asObject();
+
+        vehiculo.battery = resultado.getInt(Mensajes.AGENT_COM_SENSOR_BATTERY, 0);
+        vehiculo.coor_x = resultado.getInt(Mensajes.AGENT_COM_SENSOR_GPS_X, 0);
+        vehiculo.coor_y = resultado.getInt(Mensajes.AGENT_COM_SENSOR_GPS_Y, 0);
+        vehiculo.objetivoAlcanzado = resultado.getBoolean(Mensajes.AGENT_COM_SENSOR_REACHED_GOAL, false);
+
+        bateriaTotal = resultado.getInt(Mensajes.AGENT_COM_SENSOR_GLOBAL_ENERGY, 0);
+
+        // Procesar el sensor
+        JsonArray sensor = resultado.get(Mensajes.AGENT_COM_SENSOR_SENSOR).asArray();
+
+        int inicio = 0, ancho = 0;
+
+        switch (vehiculo.tipoVehiculo){
+            case dron:
+                inicio = 1;
+                ancho = 3;
+                break;
+
+            case coche:
+                inicio = 2;
+                ancho = 5;
+                break;
+
+            case camion:
+                inicio = 5;
+                ancho = 11;
+                break;
+        }
+
+        int x = vehiculo.coor_x - inicio;
+        int y = vehiculo.coor_y - inicio;
+        int xmapa, ymapa;
+
+        for (int fila = 0; fila < ancho; ++fila){
+            for (int columna = 0; columna < ancho; ++columna){
+                xmapa = x + columna;
+                ymapa = y + fila;
+
+                if (xmapa >= 0 && ymapa >= 0){
+                    mapaMundo[xmapa][ymapa] = sensor.get(fila * ancho + columna).asInt();
+                }
+            }
+        }
     }
 
 

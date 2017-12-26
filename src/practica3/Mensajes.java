@@ -33,6 +33,12 @@ public enum Mensajes {
     public static final String AGENT_COM_RANGE = "range";
     public static final String AGENT_COM_FLY = "fly";
     public static final String AGENT_COM_SENSOR_RADAR = "radar";
+    public static final String AGENT_COM_SENSOR_BATTERY = "battery";
+    public static final String AGENT_COM_SENSOR_GPS_X = "x";
+    public static final String AGENT_COM_SENSOR_GPS_Y = "y";
+    public static final String AGENT_COM_SENSOR_SENSOR = "sensor";
+    public static final String AGENT_COM_SENSOR_GLOBAL_ENERGY = "energy";
+    public static final String AGENT_COM_SENSOR_REACHED_GOAL = "goal";
 
     public static final String AGENT_COM_TRACE = "trace";
 
