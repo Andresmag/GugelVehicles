@@ -3,7 +3,7 @@ package practica3;
  * Enum que contiene los mensajes de la aplicación
  * incluyendo los mensajes del agente.
  *
- * @author Jose Luis Martínez Ortiz, Andrés Molina López
+ * @author Jose Luis Martínez Ortiz, Andrés Molina López, Diego Iáñez Ávila
  *
  *
  */
@@ -22,8 +22,6 @@ public enum Mensajes {
     public static final String AGENT_COM_BADMESSAGE = "BAD_MESSAGE";
 
     public static final String AGENT_COM_LOGOUT = "logout";
-
-    public static final String AGENT_COM_RESULT = "result";
 
     public static final String AGENT_COM_COMMAND = "command";
     public static final String AGENT_COM_RESULT = "result";
@@ -46,7 +44,11 @@ public enum Mensajes {
     public static final String AGENT_COM_ACCION_MV_SE = "moveSE";
 
     // ESTADOS DE GUGEL CAR
-    public static final int VEHICLE_STATUS_ESCUCHANDO = 0;
-    public static final int VEHICLE_STATUS_CONECTADO = 1;
-    public static final int VEHICLE_STATUS_ACTUANDO = 2;
+    public static final int VEHICLE_STATUS_CHECKIN = 0;
+    public static final int VEHICLE_STATUS_CONFIRMANDO_TIPO = 1;
+    public static final int VEHICLE_STATUS_PERCIBIENDO = 2;
+    //public static final int VEHICLE_STATUS_INFORMANDO_PERCEPCION = 3;
+    public static final int VEHICLE_STATUS_ESCUCHANDO_ORDEN = 4;
+    public static final int VEHICLE_STATUS_EJECUTANDO_ORDEN = 5;
+    public static final int VEHICLE_STATUS_TERMINAR = 6;
 }

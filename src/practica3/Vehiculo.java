@@ -47,7 +47,7 @@ public class Vehiculo extends SingleAgent {
      */
     @Override
     public void init(){
-        status = Mensajes.VEHICLE_STATUS_ESCUCHANDO;
+        status = Mensajes.VEHICLE_STATUS_CHECKIN;
     }
 
     /**
@@ -61,47 +61,70 @@ public class Vehiculo extends SingleAgent {
 
         while(!salir){
             switch (status){
-                case Mensajes.VEHICLE_STATUS_ESCUCHANDO:
-                    String command = procesarOrden();
-                    sendMessageController(ACLMessage.REQUEST, command);
-
-
-                    String answer = procesarOrden();
-                    sendMessageSupermente(ACLMessage.INFORM, answer);
+                case Mensajes.VEHICLE_STATUS_CHECKIN:
+                    checkin();
 
                     break;
-                case Mensajes.VEHICLE_STATUS_CONECTADO:
+                case Mensajes.VEHICLE_STATUS_CONFIRMANDO_TIPO:
+                    tipoVehiculo();
 
                     break;
-                case Mensajes.VEHICLE_STATUS_ACTUANDO:
+                case Mensajes.VEHICLE_STATUS_PERCIBIENDO:
+                    informarPercepcion();
+                    break;
+                case Mensajes.VEHICLE_STATUS_ESCUCHANDO_ORDEN:
+                    escucharOrden();
+                    break;
+
+                case Mensajes.VEHICLE_STATUS_EJECUTANDO_ORDEN:
+                    ejecutarOrden();
+                    break;
+
+                case Mensajes.VEHICLE_STATUS_TERMINAR:
                     salir = true;
                     break;
             }
         }
-
-        endSession();
     }
 
     /**
-     * Metodo para escuchar el mensaje que manda Supermente
-     *
-     * @author Andrés Molina López
+     * Estado Haciendo checkin
+     * @author Diego Iáñez Ávila
      */
-    private String procesarOrden(){
+    private void checkin(){
+        ACLMessage inbox = receiveMessage();
+
+        if (inbox.getPerformativeInt() == ACLMessage.REQUEST) {
+            hacerCheckin(inbox);
+        }
+    }
+
+    /**
+     * Hace checking y resetea las cosas.
+     * Hay que pasarle el mensaje recibido de supermente con la petición de checkin
+     * @author Diego Iáñez Ávila
+     */
+    private void hacerCheckin(ACLMessage peticionSupermente){
+        conversationID = peticionSupermente.getConversationId();
+        replyWith = null;
+        sendMessageController(ACLMessage.REQUEST, peticionSupermente.getContent());
+
+        status = Mensajes.VEHICLE_STATUS_CONFIRMANDO_TIPO;
+    }
+
+    /**
+     * Estado Confirmando tipo de vehículo
+     * @author Diego Iañez Ávila, Andrés Molina López
+     */
+    private void tipoVehiculo(){
         ACLMessage inbox = receiveMessage();
         JsonObject contenido = Json.parse(inbox.getContent()).asObject();
 
-        switch (inbox.getPerformativeInt()){
-            case ACLMessage.REQUEST:
-                String comando = contenido.get(Mensajes.AGENT_COM_COMMAND).asString();
-                conversationID = inbox.getConversationId();
-                return (comando);
-                break;
-            case ACLMessage.QUERY_REF:
-                break;
-            case ACLMessage.CANCEL:
-                break;
-            case ACLMessage.INFORM:
+        if (inbox.getSender() == controllerID){
+            String tipo = "";
+
+            // Mensaje de controlador: dice nuestras capacidades
+            if (inbox.getPerformativeInt() == ACLMessage.INFORM){
                 String respuesta = contenido.get(Mensajes.AGENT_COM_RESULT).asString();
                 if (respuesta.equals("OK")){
                     JsonObject capabilities = contenido.get("capabilities").asObject();
@@ -109,80 +132,81 @@ public class Vehiculo extends SingleAgent {
                     int range = capabilities.get("range").asInt();
                     boolean fly = capabilities.get("fly").asBoolean();
                     if(fly){
-                        return ("helicoptero");
+                        tipo = ("helicoptero");
                     } else {
-                        if (range > 5) // Está puesto a ojo, no recuerdo que número es realmente
-                            return ("camion");
+                        if (range > 5)
+                            tipo = ("camion");
                         else
-                            return ("coche");
+                            tipo = ("coche");
                     }
                 }
-                break;
-            default:
-                break;
-        }
-    }
-
-    /**
-     * Le manda al servidor el comando con el movimiento del coche
-     *
-     * @author Andrés Molina López
-     * @param nextMove indica cual es el string que se va a mandar al servidor
-     */
- /*   private void makeMove(String nextMove) {
-        if(!nextMove.isEmpty()) {
-            boolean resultadoMovimiento = sendCommand(nextMove);
-            superMente.refreshMemory(resultadoMovimiento, nextMove);
-        }
-    }
-
-    /**
-     * Recarga la bateria del coche
-     *
-     * @author Andrés Molina López
-     */
- /*   private void refuel(){
-        sendCommand(Mensajes.AGENT_COM_ACCION_REFUEL);
-        superMente.refreshBatery();
-    }
-
-    /**
-     * Finaliza la sesión con el controlador
-     *
-     * @author Diego Iáñez Ávila
-     */
-    private void endSession(){
-        // Desloguearse
-        System.out.println("Terminando sesión");
-        //GUI view.printToGeneralMsg("Terminando sesión");
-
-        sendCommand(Mensajes.AGENT_COM_LOGOUT);
-        //processPerception();
-
-        try{
-            System.out.println("Recibiendo traza");
-    //GUI        view.printToGeneralMsg("Recibiendo traza");
-            JsonObject injson = receiveJson();
-            JsonArray ja = injson.get(Mensajes.AGENT_COM_TRACE).asArray();
-
-            byte data[] = new byte[ja.size()];
-
-            for (int i = 0; i < data.length; ++i){
-                data[i] = (byte) ja.get(i).asInt();
             }
 
-            FileOutputStream fos = new FileOutputStream("traza_" + password + ".png");
-            fos.write(data);
-            fos.close();
-            System.out.println("Traza guardada en " + "traza_" + password + ".png");
-          //GUI  view.printToGeneralMsg("Traza guardada en \" + \"traza_\" + password + \".png");
-
-        } catch (InterruptedException | IOException ex){
-            System.err.println("Error procesando traza");
-            //GUI view.printToGeneralMsg("Error procesando traza");
+            sendMessageSupermente(ACLMessage.INFORM, tipo);
         }
+        else{
+            // Mensaje de supermente: pide percepción o pide que nos volvamos a suscribir
+            if (inbox.getPerformativeInt() == ACLMessage.QUERY_REF){
+                // Pedir percepción a controlador y cambiar de estado
+                sendMessageController(ACLMessage.QUERY_REF, "");
 
-        //GUI view.enableEjecutar();
+                status = Mensajes.VEHICLE_STATUS_PERCIBIENDO;
+            }
+            else if (inbox.getPerformativeInt() == ACLMessage.REQUEST){
+                hacerCheckin(inbox);
+            }
+        }
+    }
+
+    /**
+     * Estado informando percepción a supermente
+     * @author Diego Iáñez Ávila
+     */
+    private void informarPercepcion(){
+        ACLMessage inbox = receiveMessage();
+
+        // Recibir percepción de controlador y reenviar a supermente
+        if (inbox.getReceiver() == controllerID && inbox.getPerformativeInt() == ACLMessage.INFORM){
+            sendMessageSupermente(ACLMessage.INFORM, inbox.getContent());
+
+            status = Mensajes.VEHICLE_STATUS_ESCUCHANDO_ORDEN;
+        }
+    }
+
+    /**
+     * Estado Escuchando orden de supermente
+     * @author Diego Iáñez Ávila
+     */
+    private void escucharOrden(){
+        ACLMessage inbox = receiveMessage();
+
+        if (inbox.getReceiver() == controllerID){
+            if (inbox.getPerformativeInt() == ACLMessage.REQUEST){
+                // Supermente pide que ejecutemos un comando
+                sendMessageController(ACLMessage.REQUEST, inbox.getContent());
+
+                status = Mensajes.VEHICLE_STATUS_EJECUTANDO_ORDEN;
+            }
+            else if (inbox.getPerformativeInt() == ACLMessage.CANCEL){
+                // Supermente pide que terminemos la ejecución
+                status = Mensajes.VEHICLE_STATUS_TERMINAR;
+            }
+        }
+    }
+
+    /**
+     * Estado Ejecutando orden
+     * @author Diego Iáñez Ávila
+     */
+    private void ejecutarOrden(){
+        ACLMessage inbox = receiveMessage();
+
+        // Recibir confirmación de la ejecución del controlador y pedirle la percepción
+        if (inbox.getReceiver() == controllerID && inbox.getPerformativeInt() == ACLMessage.INFORM){
+            sendMessageController(ACLMessage.QUERY_REF, "");
+
+            status = Mensajes.VEHICLE_STATUS_PERCIBIENDO;
+        }
     }
 
     /**
@@ -196,6 +220,7 @@ public class Vehiculo extends SingleAgent {
         outbox.setSender(getAid());
         outbox.setReceiver(controllerID);
         outbox.setContent(message);
+        outbox.setConversationId(conversationID);
 
         if (replyWith != null)
             outbox.setInReplyTo(replyWith);
@@ -237,7 +262,9 @@ public class Vehiculo extends SingleAgent {
             System.out.println(inbox.getContent());
             /**/
 
-            replyWith = inbox.getReplyWith();
+            if (inbox.getSender() == controllerID) {
+                replyWith = inbox.getReplyWith();
+            }
 
         } catch (InterruptedException e) {
             System.err.println("Error al recibir mensaje en receiveMessage");
@@ -245,34 +272,4 @@ public class Vehiculo extends SingleAgent {
 
         return inbox;
     }
-
-    /**
-     * Iniciar el procesamiento de la percepción
-     *
-     * @author Diego Iáñez Ávila
-     */
-  /*  private void processPerception(){
-        try {
-            // Recibimos los mensajes del servidor en orden
-            ArrayList<JsonObject> messages = new ArrayList<>();
-
-            for (int i = 0; i < numSensores; ++i) {
-                JsonObject msg = receiveJson();
-                messages.add(msg);
-            }
-
-            superMente.processPerception(messages);
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-   //GUI     view.printToScanner(cerebro.getScannerCar());
-       //GUI view.printToRadar(cerebro.getRadarCar());
-
-        // Pintar el contenido del radar completo en el mapa
-        //GUI  view.updateMap(cerebro.getPosX(), cerebro.getPosY(), cerebro.getCompleteRadar());
-    }
-
-*/
 }
