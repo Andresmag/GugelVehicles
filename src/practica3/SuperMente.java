@@ -11,6 +11,8 @@ import org.codehaus.jettison.json.JSONObject;
 import practica3.GUI.GugelCarView;
 
 import javax.swing.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -168,10 +170,22 @@ public class SuperMente extends SingleAgent {
 
     /** Manda un cancel al controlador para así poder iniciar una nueva sesión posteriormente
      *
-     * @author Ángel Píñar Rivas
+     * @author Ángel Píñar Rivas, Diego Iáñez Ávila
+     * @return El mensaje con la traza
      */
-    private void reiniciarSesion(){
+    private ACLMessage reiniciarSesion(){
         sendMessageController(ACLMessage.CANCEL, "");
+
+        // Esperar al agree
+        ACLMessage inbox;
+        do {
+            inbox = receiveMessage();
+        } while (inbox.getPerformativeInt() != ACLMessage.AGREE);
+
+        // Recibir la traza
+        inbox = receiveMessage();
+
+        return inbox;
     }
 
     /** Manda cancel al controlador y a los vehículos para finalizar la sesión
@@ -182,7 +196,52 @@ public class SuperMente extends SingleAgent {
         for(EstadoVehiculo vehiculo: vehiculos){
             sendMessageVehiculo(ACLMessage.CANCEL, "", vehiculo.id);
         }
-        sendMessageController(ACLMessage.CANCEL, "");
+
+        ACLMessage mensajeTraza = reiniciarSesion();
+        guardarTraza(mensajeTraza);
+    }
+
+    /**
+     * Guardar la traza recibida del servidor
+     * @author Diego Iáñez Ávila
+     */
+    private void guardarTraza(ACLMessage mensajeTraza){
+        if (mensajeTraza.getPerformativeInt() == ACLMessage.INFORM && status != Mensajes.SUPERMENTE_STATUS_EXPLORACION){
+            try {
+                JsonObject injson = Json.parse(mensajeTraza.getContent()).asObject();
+                JsonArray ja = injson.get(Mensajes.AGENT_COM_TRACE).asArray();
+
+                byte data[] = new byte[ja.size()];
+
+                for (int i = 0; i < data.length; ++i){
+                    data[i] = (byte) ja.get(i).asInt();
+                }
+
+                String nombre = "traza_" + conversationID + "_vehiculos_";
+
+                for (EstadoVehiculo vehiculo : vehiculos){
+                    switch (vehiculo.tipoVehiculo){
+                        case dron:
+                            nombre += "dron_";
+                            break;
+                        case coche:
+                            nombre += "coche_";
+                            break;
+                        case camion:
+                            nombre += "camion_";
+                            break;
+                    }
+                }
+
+                FileOutputStream fos = new FileOutputStream(nombre);
+                fos.write(data);
+                fos.close();
+                System.out.println("Traza guardada en " + nombre);
+
+            } catch (IOException ex){
+                System.err.println("Error procesando traza");
+            }
+        }
     }
 
     /** Manda subscribe al servidor y recibe la respuesta
