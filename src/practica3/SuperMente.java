@@ -73,16 +73,10 @@ public class SuperMente extends SingleAgent {
         JsonObject jsonLogin = Json.object();
         jsonLogin.add(Mensajes.AGENT_COM_WORLD, mapa);
 
-        sendMessage(ACLMessage.SUBSCRIBE, jsonLogin.toString());
+        sendMessageController(ACLMessage.SUBSCRIBE, jsonLogin.toString());
 
         // Recibir y guardar el conversation-ID
-        ACLMessage answer = null;
-
-        try {
-            answer = receiveACLMessage();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        ACLMessage answer = receiveMessage();
 
         if (answer.getPerformativeInt() == ACLMessage.INFORM){
             conversationID = answer.getConversationId();
@@ -92,7 +86,7 @@ public class SuperMente extends SingleAgent {
             System.out.println(answer.getContent().toString());
         }
 
-        sendMessage(ACLMessage.CANCEL, "");
+        sendMessageController(ACLMessage.CANCEL, "");
     }
 
     /**
