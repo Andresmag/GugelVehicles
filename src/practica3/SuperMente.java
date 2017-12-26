@@ -109,12 +109,15 @@ public class SuperMente extends SingleAgent {
         while(!salir) {
             switch (status) {
                 case Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO:
-                    //Suscribe al servidor
-                    //Recibe inform OK, coge conversation ID
+                    comenzarSesion();
                     preparados_ir_obj = true;
                     status = Mensajes.SUPERMENTE_STATUS_CONTANDOVEHICULOS;
                     break;
                 case Mensajes.SUPERMENTE_STATUS_CONTANDOVEHICULOS:
+
+                    for(EstadoVehiculo vehiculo: vehiculos){
+                        registrarVehiculo(vehiculo.id);
+                    }
                     //Pide checkin a vehiculo 0 mandando conversation id
                     //Pide checkin a vehiculo 1 mandando conversation id
                     //Pide checkin a vehiculo 2 mandando conversation id
@@ -137,7 +140,7 @@ public class SuperMente extends SingleAgent {
                     if (exploracion_exitosa) {
                         status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO_OBJ;
                     } else {
-                        //hace un cancel para empezar de nuevo
+                        reiniciarSesion();
                         status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
                     }
                     break;
@@ -154,7 +157,7 @@ public class SuperMente extends SingleAgent {
                     if(vehiculos_ir_obj){
                         status = Mensajes.SUPERMENTE_STATUS_YENDO_OBJ;
                     } else {
-                        //Hace cancel
+                        reiniciarSesion();
                         status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
                     }
                     break;
@@ -164,7 +167,39 @@ public class SuperMente extends SingleAgent {
                     break;
             }
         }
-        //Hacer un cancel
+        finalizarSesion();
+    }
+
+    /** Manda un cancel al controlador para así poder iniciar una nueva sesión posteriormente
+     *
+     * @author Ángel Píñar Rivas
+     */
+    private void reiniciarSesion(){
+
+    }
+
+    /** Manda cancel al controlador y a los vehículos para finalizar la sesión
+     *
+     * @author Ángel Píñar Rivas
+     */
+    private void finalizarSesion(){
+
+    }
+
+    /** Manda subscribe al servidor y recibe la respuesta
+     *
+     * @author
+     */
+    private void comenzarSesion(){
+
+    }
+
+    /** Ordena al vehiculo que haga checkin y recibe la respuesta
+     *
+     * @author
+     */
+    private void registrarVehiculo(AgentID idVehiculo){
+
     }
 
     /**
