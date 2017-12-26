@@ -211,6 +211,10 @@ public class SuperMente extends SingleAgent {
         sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_CHECKIN), vehiculo.id);
     }
 
+    /**
+     * Crear un JSON para mandar comandos
+     * @author Diego Iáñez Ávila
+     */
     private String jsonComando(String comando){
         JsonObject json = Json.object();
         json.add(Mensajes.AGENT_COM_COMMAND, comando);
