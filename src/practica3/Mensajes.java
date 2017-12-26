@@ -42,6 +42,7 @@ public enum Mensajes {
     public static final String AGENT_COM_ACCION_MV_SW = "moveSW";
     public static final String AGENT_COM_ACCION_MV_S = "moveS";
     public static final String AGENT_COM_ACCION_MV_SE = "moveSE";
+    public static final String AGENT_COM_CHECKIN = "checkin";
 
     // ESTADOS DE GUGEL CAR
     public static final int VEHICLE_STATUS_CHECKIN = 0;

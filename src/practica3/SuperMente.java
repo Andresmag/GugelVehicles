@@ -111,7 +111,7 @@ public class SuperMente extends SingleAgent {
                 case Mensajes.SUPERMENTE_STATUS_CONTANDOVEHICULOS:
 
                     for(EstadoVehiculo vehiculo: vehiculos){
-                        registrarVehiculo(vehiculo.id);
+                        registrarVehiculo(vehiculo);
                     }
                     //Pide checkin a vehiculo 0 mandando conversation id
                     //Pide checkin a vehiculo 1 mandando conversation id
@@ -191,10 +191,17 @@ public class SuperMente extends SingleAgent {
 
     /** Ordena al vehiculo que haga checkin y recibe la respuesta
      *
-     * @author
+     * @author Diego Iáñez Ávila
      */
-    private void registrarVehiculo(AgentID idVehiculo){
+    private void registrarVehiculo(EstadoVehiculo vehiculo){
+        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_CHECKIN), vehiculo.id);
+    }
 
+    private String jsonComando(String comando){
+        JsonObject json = Json.object();
+        json.add(Mensajes.AGENT_COM_COMMAND, comando);
+
+        return json.toString();
     }
 
     /**
