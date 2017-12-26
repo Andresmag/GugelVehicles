@@ -2,6 +2,7 @@ package practica3;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
+import com.sun.xml.internal.ws.resources.SenderMessages;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
 import es.upv.dsic.gti_ia.core.ACLMessage;
@@ -47,7 +48,7 @@ public class SuperMente extends SingleAgent {
         mapa = map;
         controllerID = new AgentID("Girtab");
         view = v;
-        status = 0;
+        status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
     }
 
     // He tenido que crear este segundo constructor mientras la view no funciona para que no
@@ -70,6 +71,9 @@ public class SuperMente extends SingleAgent {
      */
     @Override
     public void init(){
+        /*FUTURO INIT* /
+        comenzarSesion();
+        /*INIT DEPRECATED, ACTUALMENTE PARA PRUEBAS*/
         JsonObject jsonLogin = Json.object();
         jsonLogin.add(Mensajes.AGENT_COM_WORLD, mapa);
 
@@ -87,6 +91,7 @@ public class SuperMente extends SingleAgent {
         }
 
         sendMessageController(ACLMessage.CANCEL, "");
+        /**/
     }
 
     /**
@@ -113,15 +118,7 @@ public class SuperMente extends SingleAgent {
                     for(EstadoVehiculo vehiculo: vehiculos){
                         registrarVehiculo(vehiculo);
                     }
-                    //Pide checkin a vehiculo 0 mandando conversation id
-                    //Pide checkin a vehiculo 1 mandando conversation id
-                    //Pide checkin a vehiculo 2 mandando conversation id
-                    //Pide checkin a vehiculo 3 mandando conversation id
 
-                    //Recibe inform tipovehiculo de vehiculo 0
-                    //Recibe inform tipovehiculo de vehiculo 1
-                    //Recibe inform tipovehiculo de vehiculo 2
-                    //Recibe inform tipovehiculo de vehiculo 3
                     if(!exploracion_exitosa) {
                         status = Mensajes.SUPERMENTE_STATUS_EXPLORACION;
                     } else {
@@ -170,7 +167,7 @@ public class SuperMente extends SingleAgent {
      * @author Ángel Píñar Rivas
      */
     private void reiniciarSesion(){
-
+        sendMessageController(ACLMessage.CANCEL, "");
     }
 
     /** Manda cancel al controlador y a los vehículos para finalizar la sesión
@@ -178,15 +175,32 @@ public class SuperMente extends SingleAgent {
      * @author Ángel Píñar Rivas
      */
     private void finalizarSesion(){
-
+        for(EstadoVehiculo vehiculo: vehiculos){
+            sendMessageVehiculo(ACLMessage.CANCEL, "", vehiculo.id);
+        }
+        sendMessageController(ACLMessage.CANCEL, "");
     }
 
     /** Manda subscribe al servidor y recibe la respuesta
      *
-     * @author
+     * @author Ángel Píñar Rivas
      */
     private void comenzarSesion(){
+        JsonObject jsonLogin = Json.object();
+        jsonLogin.add(Mensajes.AGENT_COM_WORLD, mapa);
 
+        sendMessageController(ACLMessage.SUBSCRIBE, jsonLogin.toString());
+
+        // Recibir y guardar el conversation-ID
+        ACLMessage answer = receiveMessage();
+
+        if (answer.getPerformativeInt() == ACLMessage.INFORM){
+            conversationID = answer.getConversationId();
+            System.out.println(conversationID);
+        }
+        else{
+            System.out.println(answer.getContent().toString());
+        }
     }
 
     /** Ordena al vehiculo que haga checkin y recibe la respuesta
