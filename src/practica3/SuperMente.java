@@ -103,65 +103,63 @@ public class SuperMente extends SingleAgent {
     /**
      * Método de ejecución de la supermente
      *
-     * @author Ángel Píñar Rivas
+     * @author Ángel Píñar Rivas, Jose Luis Martínez Ortiz
      */
     @Override
     public void execute(){
         boolean salir=false;
         boolean exploracion_exitosa=false;
-        boolean vehiculos_ir_obj=false; // Si está a true, tenemos los vehiculos que queremos para empezar a ir al objetivo
-        boolean preparados_ir_obj=true; // Si está a true, pueden ir al objetivo ya que es un nuevo subscribe y la bateria esta llena
+        boolean tenemos_dron = false;
 
         while(!salir) {
             switch (status) {
                 case Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO:
                     comenzarSesion();
-                    preparados_ir_obj = true;
                     status = Mensajes.SUPERMENTE_STATUS_CONTANDOVEHICULOS;
                     break;
                 case Mensajes.SUPERMENTE_STATUS_CONTANDOVEHICULOS:
 
                     for(EstadoVehiculo vehiculo: vehiculos){
                         registrarVehiculo(vehiculo);
-                    }
 
-                    if(!exploracion_exitosa) {
-                        status = Mensajes.SUPERMENTE_STATUS_EXPLORACION;
-                    } else {
-                        status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO_OBJ;
-                    }
-                    break;
-                case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
-                    exploracion_exitosa = explorarMapa();
-                    preparados_ir_obj = false;
-
-                    if (exploracion_exitosa) {
-                        status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO_OBJ;
-                    } else {
-                        reiniciarSesion();
-                        status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
-                    }
-                    break;
-                case Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO_OBJ:
-                    if(preparados_ir_obj) {
-                        for (EstadoVehiculo vehiculo : vehiculos) {
-                            //Criterio de aceptación para ir al objetivo, provisionalmente minimo 1 dron
-                            if (!vehiculos_ir_obj) {
-                                vehiculos_ir_obj = vehiculo.tipoVehiculo == TipoVehiculo.dron;
-                            }
+                        //Cuando tengamos el drón
+                        if (vehiculo.tipoVehiculo == TipoVehiculo.dron){
+                            tenemos_dron = true;
+                            // dejamos de registrar más vehículos si vamos a explorar
+                            if(!exploracion_exitosa)
+                                break;
                         }
                     }
 
-                    if(vehiculos_ir_obj){
-                        status = Mensajes.SUPERMENTE_STATUS_YENDO_OBJ;
+                    if(!exploracion_exitosa) {
+                        if(tenemos_dron) {
+                            status = Mensajes.SUPERMENTE_STATUS_EXPLORACION;
+                        }else{
+                            reiniciarSesion();
+                            status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
+                        }
                     } else {
-                        reiniciarSesion();
-                        status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
+                        status = Mensajes.SUPERMENTE_STATUS_YENDO_OBJ;
                     }
+
+                    break;
+                case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
+                    exploracion_exitosa = explorarMapa();
+
+                    //Cuando termino de explorar vuelvo a empezar según la exploración
+                    reiniciarSesion();
+                    status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
+
                     break;
                 case Mensajes.SUPERMENTE_STATUS_YENDO_OBJ:
                     salir = irAlObjetivo();
                     status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO; //Si salir es true esto da igual, pero si es false toca volver a intentarlo.
+
+                    //Si por algún motivo terminamos y no completamos el mapa, reiniciamos
+                    if(!salir){
+                        reiniciarSesion();
+                    }
+
                     break;
             }
         }
