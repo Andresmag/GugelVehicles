@@ -51,4 +51,11 @@ public enum Mensajes {
     public static final int VEHICLE_STATUS_ESCUCHANDO_ORDEN = 4;
     public static final int VEHICLE_STATUS_EJECUTANDO_ORDEN = 5;
     public static final int VEHICLE_STATUS_TERMINAR = 6;
+
+    // ESTADOS DE SUPERMENTE
+    public static final int SUPERMENTE_STATUS_SUSCRIBIENDO = 0;
+    public static final int SUPERMENTE_STATUS_CONTANDOVEHICULOS = 1;
+    public static final int SUPERMENTE_STATUS_EXPLORACION = 2;
+    public static final int SUPERMENTE_STATUS_SUSCRIBIENDO_OBJ = 3;
+    public static final int SUPERMENTE_STATUS_YENDO_OBJ = 4;
 }
