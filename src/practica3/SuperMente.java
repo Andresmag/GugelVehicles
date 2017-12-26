@@ -22,6 +22,7 @@ public class SuperMente extends SingleAgent {
     private AgentID controllerID;
     private String mapa; // Si va a logearse tiene que saber a que mapa
     private String conversationID;
+    private String replyWith;
     private GugelCarView view;
     private int status;
     /////////////////////////////////////////////
@@ -72,16 +73,10 @@ public class SuperMente extends SingleAgent {
         JsonObject jsonLogin = Json.object();
         jsonLogin.add(Mensajes.AGENT_COM_WORLD, mapa);
 
-        sendMessage(ACLMessage.SUBSCRIBE, jsonLogin.toString());
+        sendMessageController(ACLMessage.SUBSCRIBE, jsonLogin.toString());
 
         // Recibir y guardar el conversation-ID
-        ACLMessage answer = null;
-
-        try {
-            answer = receiveACLMessage();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        ACLMessage answer = receiveMessage();
 
         if (answer.getPerformativeInt() == ACLMessage.INFORM){
             conversationID = answer.getConversationId();
@@ -91,7 +86,7 @@ public class SuperMente extends SingleAgent {
             System.out.println(answer.getContent().toString());
         }
 
-        sendMessage(ACLMessage.CANCEL, "");
+        sendMessageController(ACLMessage.CANCEL, "");
     }
 
     /**
@@ -237,16 +232,66 @@ public class SuperMente extends SingleAgent {
     /**
      * Método para crear mensajes con distintas performativas
      * @param performativa tipo de performativa que va a tener el mensaje
-     * @param contenido mensaje que se va a mandar
+     * @param message mensaje que se va a mandar
      * @author Andrés Molina López
      */
-    private void sendMessage(int performativa, String contenido){
+    private void sendMessageController(int performativa, String message){
         ACLMessage outbox = new ACLMessage();
-        outbox.setSender(this.getAid());
+        outbox.setSender(getAid());
         outbox.setReceiver(controllerID);
-        outbox.setContent(contenido);
-        outbox.setPerformative(performativa); // int
-        this.send(outbox);
+        outbox.setContent(message);
+        outbox.setConversationId(conversationID);
+
+        if (replyWith != null)
+            outbox.setInReplyTo(replyWith);
+
+        outbox.setPerformative(performativa);
+
+
+        send(outbox);
+    }
+
+    /**
+     * Enviar un mensaje a Supermente
+     *
+     * @author Andrés Molina López
+     * @param message Mensaje a enviar
+     */
+    private void sendMessageVehiculo(int performativa, String message, AgentID aid){
+        ACLMessage outbox = new ACLMessage();
+        outbox.setSender(getAid());
+        outbox.setReceiver(aid);
+        outbox.setContent(message);
+        outbox.setConversationId(conversationID);
+        outbox.setPerformative(performativa);
+
+        send(outbox);
+    }
+
+    /**
+     * Recibir un mensaje ACL
+     *
+     * @author Diego Iáñez Ávila
+     * @return El mensaje recibido
+     */
+    private ACLMessage receiveMessage(){
+        ACLMessage inbox = null;
+
+        try {
+            inbox = receiveACLMessage();
+            /* Imprimir para debug */
+            System.out.println(inbox.getContent());
+            /**/
+
+            if (inbox.getSender() == controllerID) {
+                replyWith = inbox.getReplyWith();
+            }
+
+        } catch (InterruptedException e) {
+            System.err.println("Error al recibir mensaje en receiveMessage de supermente");
+        }
+
+        return inbox;
     }
 
 }
