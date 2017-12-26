@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="24bfa09a-bd61-4e43-b54a-915122ef3fda" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/practica3/SuperMente.java" afterPath="$PROJECT_DIR$/src/practica3/SuperMente.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,11 +18,9 @@
       <file leaf-file-name="Mensajes.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/practica3/Mensajes.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
+            <state relative-caret-position="776">
               <caret line="59" column="59" lean-forward="false" selection-start-line="59" selection-start-column="59" selection-end-line="59" selection-end-column="59" />
-              <folding>
-                <marker date="1514299766181" expanded="true" signature="19:172" ph="/**...*/" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -62,9 +61,12 @@
       <file leaf-file-name="SuperMente.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/practica3/SuperMente.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-6">
-              <caret line="118" column="53" lean-forward="false" selection-start-line="118" selection-start-column="53" selection-end-line="118" selection-end-column="53" />
-              <folding />
+            <state relative-caret-position="3009">
+              <caret line="185" column="32" lean-forward="false" selection-start-line="185" selection-start-column="32" selection-end-line="185" selection-end-column="32" />
+              <folding>
+                <element signature="e#5775#5776#0" expanded="true" />
+                <element signature="e#5835#5836#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -134,6 +136,11 @@
             <path>
               <item name="GugelVehicles" type="b2602c69:ProjectViewProjectNode" />
               <item name="GugelVehicles" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="GugelVehicles" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GugelVehicles" type="462c0819:PsiDirectoryNode" />
+              <item name=".idea" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="GugelVehicles" type="b2602c69:ProjectViewProjectNode" />
@@ -230,7 +237,7 @@
       <workItem from="1512754527853" duration="902000" />
       <workItem from="1513338559984" duration="1649000" />
       <workItem from="1514288360643" duration="4809000" />
-      <workItem from="1514299726488" duration="2354000" />
+      <workItem from="1514299726488" duration="3266000" />
     </task>
     <task id="LOCAL-00001" summary="Commit inicial con todo">
       <created>1512755436836</created>
@@ -260,11 +267,18 @@
       <option name="project" value="LOCAL" />
       <updated>1514302086084</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Añadidas cabeceras de metodos que se van a implementar">
+      <created>1514302095416</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1514302095416</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="9714000" />
+    <option name="totallyTimeSpent" value="10626000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -321,9 +335,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="969">
           <caret line="57" column="59" lean-forward="false" selection-start-line="57" selection-start-column="59" selection-end-line="57" selection-end-column="59" />
-          <folding>
-            <marker date="1514299766181" expanded="true" signature="19:172" ph="/**...*/" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -358,7 +370,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2108">
           <caret line="124" column="59" lean-forward="true" selection-start-line="124" selection-start-column="59" selection-end-line="124" selection-end-column="59" />
-          <folding />
+          <folding>
+            <element signature="e#5775#5776#0" expanded="true" />
+            <element signature="e#5835#5836#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -385,9 +400,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="9" column="12" lean-forward="false" selection-start-line="9" selection-start-column="12" selection-end-line="9" selection-end-column="12" />
-          <folding>
-            <marker date="1514299766181" expanded="true" signature="19:172" ph="/**...*/" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -455,16 +468,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/practica3/Mensajes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="59" column="59" lean-forward="false" selection-start-line="59" selection-start-column="59" selection-end-line="59" selection-end-column="59" />
-          <folding>
-            <marker date="1514299766181" expanded="true" signature="19:172" ph="/**...*/" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/practica3/TipoVehiculo.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
@@ -492,6 +495,14 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3825">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/practica3/EstadoVehiculo.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
@@ -500,11 +511,22 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/practica3/Mensajes.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="776">
+          <caret line="59" column="59" lean-forward="false" selection-start-line="59" selection-start-column="59" selection-end-line="59" selection-end-column="59" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/practica3/SuperMente.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6">
-          <caret line="118" column="53" lean-forward="false" selection-start-line="118" selection-start-column="53" selection-end-line="118" selection-end-column="53" />
-          <folding />
+        <state relative-caret-position="3009">
+          <caret line="185" column="32" lean-forward="false" selection-start-line="185" selection-start-column="32" selection-end-line="185" selection-end-column="32" />
+          <folding>
+            <element signature="e#5775#5776#0" expanded="true" />
+            <element signature="e#5835#5836#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
