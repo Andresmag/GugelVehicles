@@ -1,16 +1,10 @@
 package practica3;
 
 import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Vehículo zombie que se mueve por el mundo.
@@ -126,11 +120,11 @@ public class Vehiculo extends SingleAgent {
             // Mensaje de controlador: dice nuestras capacidades
             if (inbox.getPerformativeInt() == ACLMessage.INFORM){
                 String respuesta = contenido.get(Mensajes.AGENT_COM_RESULT).asString();
-                if (respuesta.equals("OK")){
-                    JsonObject capabilities = contenido.get("capabilities").asObject();
-                    int fuel = capabilities.get("fuelrate").asInt();
-                    int range = capabilities.get("range").asInt();
-                    boolean fly = capabilities.get("fly").asBoolean();
+                if (respuesta.equals(Mensajes.AGENT_COM_OK)){
+                    JsonObject capabilities = contenido.get(Mensajes.AGENT_COM_CAPABILITIES).asObject();
+                    int fuel = capabilities.get(Mensajes.AGENT_COM_FUELRATE).asInt();
+                    int range = capabilities.get(Mensajes.AGENT_COM_RANGE).asInt();
+                    boolean fly = capabilities.get(Mensajes.AGENT_COM_FLY).asBoolean();
                     if(fly){
                         tipo = (Mensajes.VEHICLE_TYPE_HELICOPTERO);
                     } else {

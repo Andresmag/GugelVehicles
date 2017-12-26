@@ -28,6 +28,10 @@ public enum Mensajes {
     public static final String AGENT_COM_KEY = "key";
     public static final String AGENT_COM_WORLD = "world";
     public static final String AGENT_COM_SENSOR_SCANNER = "scanner";
+    public static final String AGENT_COM_CAPABILITIES = "capabilities";
+    public static final String AGENT_COM_FUELRATE = "fuelrate";
+    public static final String AGENT_COM_RANGE = "range";
+    public static final String AGENT_COM_FLY = "fly";
     public static final String AGENT_COM_SENSOR_RADAR = "radar";
 
     public static final String AGENT_COM_TRACE = "trace";
