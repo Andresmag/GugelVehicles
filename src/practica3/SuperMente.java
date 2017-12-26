@@ -67,7 +67,7 @@ public class SuperMente extends SingleAgent {
     /**
      * Método para la inicialización del agente
      *
-     * @author Andrés Molina López
+     * @author Andrés Molina López, Ángel Píñar Rivas
      */
     @Override
     public void init(){
@@ -183,7 +183,7 @@ public class SuperMente extends SingleAgent {
 
     /** Manda subscribe al servidor y recibe la respuesta
      *
-     * @author Ángel Píñar Rivas
+     * @author Ángel Píñar Rivas, Andrés Molina López
      */
     private void comenzarSesion(){
         JsonObject jsonLogin = Json.object();
