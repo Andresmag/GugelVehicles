@@ -272,6 +272,8 @@ public class SuperMente extends SingleAgent {
      * @param performativa tipo de performativa que va a tener el mensaje
      * @param message mensaje que se va a mandar
      * @author Andrés Molina López
+     * Está en amarillo porque se repite con el de Vehiculo.java,
+     * pero como no hay herencia múltiple pues es un mal menor
      */
     private void sendMessageController(int performativa, String message){
         ACLMessage outbox = new ACLMessage();
