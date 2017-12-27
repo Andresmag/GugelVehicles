@@ -42,6 +42,8 @@ public class Vehiculo extends SingleAgent {
     @Override
     public void init(){
         status = Mensajes.VEHICLE_STATUS_CHECKIN;
+
+        System.out.println("Vehículo " + getAid().toString() + " activo");
     }
 
     /**
@@ -79,6 +81,8 @@ public class Vehiculo extends SingleAgent {
                     break;
             }
         }
+
+        System.out.println(getAid().toString() + " finalizado.");
     }
 
     /**
@@ -112,14 +116,16 @@ public class Vehiculo extends SingleAgent {
      */
     private void tipoVehiculo(){
         ACLMessage inbox = receiveMessage();
-        JsonObject contenido = Json.parse(inbox.getContent()).asObject();
+        JsonObject contenido;
 
-        if (inbox.getSender() == controllerID){
+        if (inbox.getSender().toString().equals(controllerID.toString())){
             String tipo = "";
 
             // Mensaje de controlador: dice nuestras capacidades
             if (inbox.getPerformativeInt() == ACLMessage.INFORM){
+                contenido = Json.parse(inbox.getContent()).asObject();
                 String respuesta = contenido.get(Mensajes.AGENT_COM_RESULT).asString();
+
                 if (respuesta.equals(Mensajes.AGENT_COM_OK)){
                     JsonObject capabilities = contenido.get(Mensajes.AGENT_COM_CAPABILITIES).asObject();
                     int fuel = capabilities.get(Mensajes.AGENT_COM_FUELRATE).asInt();
@@ -149,6 +155,9 @@ public class Vehiculo extends SingleAgent {
             else if (inbox.getPerformativeInt() == ACLMessage.REQUEST){
                 hacerCheckin(inbox);
             }
+            else if (inbox.getPerformativeInt() == ACLMessage.CANCEL){
+                status = Mensajes.VEHICLE_STATUS_TERMINAR;
+            }
         }
     }
 
@@ -160,7 +169,7 @@ public class Vehiculo extends SingleAgent {
         ACLMessage inbox = receiveMessage();
 
         // Recibir percepción de controlador y reenviar a supermente
-        if (inbox.getReceiver() == controllerID && inbox.getPerformativeInt() == ACLMessage.INFORM){
+        if (inbox.getSender().toString().equals(controllerID.toString()) && inbox.getPerformativeInt() == ACLMessage.INFORM){
             sendMessageSupermente(ACLMessage.INFORM, inbox.getContent());
 
             status = Mensajes.VEHICLE_STATUS_ESCUCHANDO_ORDEN;
@@ -174,17 +183,24 @@ public class Vehiculo extends SingleAgent {
     private void escucharOrden(){
         ACLMessage inbox = receiveMessage();
 
-        if (inbox.getReceiver() == controllerID){
-            if (inbox.getPerformativeInt() == ACLMessage.REQUEST){
-                // Supermente pide que ejecutemos un comando
-                sendMessageController(ACLMessage.REQUEST, inbox.getContent());
+        if (inbox.getPerformativeInt() == ACLMessage.REQUEST){
+            // Supermente pide que ejecutemos un comando
 
+            JsonObject contenido = Json.parse(inbox.getContent()).asObject();
+
+            if (contenido.getString(Mensajes.AGENT_COM_COMMAND, "").equals(Mensajes.AGENT_COM_CHECKIN)) {
+                conversationID = inbox.getConversationId();
+                status = Mensajes.VEHICLE_STATUS_CONFIRMANDO_TIPO;
+            }
+            else {
                 status = Mensajes.VEHICLE_STATUS_EJECUTANDO_ORDEN;
             }
-            else if (inbox.getPerformativeInt() == ACLMessage.CANCEL){
-                // Supermente pide que terminemos la ejecución
-                status = Mensajes.VEHICLE_STATUS_TERMINAR;
-            }
+
+            sendMessageController(ACLMessage.REQUEST, inbox.getContent());
+        }
+        else if (inbox.getPerformativeInt() == ACLMessage.CANCEL) {
+            // Supermente pide que terminemos la ejecución
+            status = Mensajes.VEHICLE_STATUS_TERMINAR;
         }
     }
 
@@ -196,7 +212,7 @@ public class Vehiculo extends SingleAgent {
         ACLMessage inbox = receiveMessage();
 
         // Recibir confirmación de la ejecución del controlador y pedirle la percepción
-        if (inbox.getReceiver() == controllerID && inbox.getPerformativeInt() == ACLMessage.INFORM){
+        if (inbox.getSender().toString().equals(controllerID.toString()) && inbox.getPerformativeInt() == ACLMessage.INFORM){
             sendMessageController(ACLMessage.QUERY_REF, "");
 
             status = Mensajes.VEHICLE_STATUS_PERCIBIENDO;
@@ -221,6 +237,8 @@ public class Vehiculo extends SingleAgent {
 
         outbox.setPerformative(performativa);
 
+        System.out.println("Vehiculo envía a controlador: " + message);
+
         send(outbox);
     }
 
@@ -237,6 +255,8 @@ public class Vehiculo extends SingleAgent {
         outbox.setContent(message);
         outbox.setPerformative(performativa);
 
+        System.out.println("Vehiculo envía a supermente: " + message);
+
         send(outbox);
     }
 
@@ -252,10 +272,10 @@ public class Vehiculo extends SingleAgent {
         try {
             inbox = receiveACLMessage();
             /* Imprimir para debug */
-            System.out.println(inbox.getContent());
+            System.out.println("Vehiculo " + getAid().toString() + " recibe: " + inbox.getContent() + " en estado: " + status);
             /**/
 
-            if (inbox.getSender() == controllerID) {
+            if (inbox.getSender().toString().equals(controllerID.toString())) {
                 replyWith = inbox.getReplyWith();
             }
 

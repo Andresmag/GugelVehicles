@@ -78,10 +78,18 @@ public class SuperMente extends SingleAgent {
      */
     @Override
     public void init(){
-        /*FUTURO INIT* /
-        comenzarSesion();
+        /*FUTURO INIT*/
 
-        /*INIT DEPRECATED, ACTUALMENTE PARA PRUEBAS*/
+        // Inicializar algunas estructuras
+        vehiculos = new ArrayList<>();
+
+        for(int i=0; i<4; i++){
+            vehiculos.add(new EstadoVehiculo(new AgentID("coche" + i)));
+        }
+
+        //reiniciarSesion();
+
+        /*INIT DEPRECATED, ACTUALMENTE PARA PRUEBAS* /
         JsonObject jsonLogin = Json.object();
         jsonLogin.add(Mensajes.AGENT_COM_WORLD, mapa);
 
@@ -128,8 +136,8 @@ public class SuperMente extends SingleAgent {
                         if (vehiculo.tipoVehiculo == TipoVehiculo.DRON){
                             tenemos_dron = true;
                             // dejamos de registrar más vehículos si vamos a explorar
-                            if(!exploracion_exitosa)
-                                break;
+                            //if(!exploracion_exitosa)
+                            //    break;
                         }
                     }
 
@@ -233,6 +241,8 @@ public class SuperMente extends SingleAgent {
                     }
                 }
 
+                nombre += ".png";
+
                 FileOutputStream fos = new FileOutputStream(nombre);
                 fos.write(data);
                 fos.close();
@@ -252,18 +262,21 @@ public class SuperMente extends SingleAgent {
         JsonObject jsonLogin = Json.object();
         jsonLogin.add(Mensajes.AGENT_COM_WORLD, mapa);
 
-        sendMessageController(ACLMessage.SUBSCRIBE, jsonLogin.toString());
+        ACLMessage answer;
 
-        // Recibir y guardar el conversation-ID
-        ACLMessage answer = receiveMessage();
+        do {
+            sendMessageController(ACLMessage.SUBSCRIBE, jsonLogin.toString());
 
-        if (answer.getPerformativeInt() == ACLMessage.INFORM){
-            conversationID = answer.getConversationId();
-            System.out.println(conversationID);
-        }
-        else{
-            System.out.println(answer.getContent().toString());
-        }
+            // Recibir y guardar el conversation-ID
+            answer = receiveMessage();
+
+            if (answer.getPerformativeInt() == ACLMessage.INFORM) {
+                conversationID = answer.getConversationId();
+                System.out.println(conversationID);
+            } else {
+                System.out.println(answer.getContent().toString());
+            }
+        } while (answer.getPerformativeInt() != ACLMessage.INFORM || !answer.getContent().equals("{\"result\":\"OK\"}"));
     }
 
     /** Ordena al vehiculo que haga checkin y recibe la respuesta
@@ -285,6 +298,8 @@ public class SuperMente extends SingleAgent {
         else if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_COCHE)){
             vehiculo.tipoVehiculo = TipoVehiculo.COCHE;
         }
+
+        System.out.println("Vehículo registrado.");
     }
 
     /**
@@ -307,6 +322,9 @@ public class SuperMente extends SingleAgent {
     private boolean irAlObjetivo(){
         boolean conformes = false;
 
+        System.out.println("El método irAlObjetivo no está hecho.");
+        conformes = true;
+
         return conformes;
     }
 
@@ -324,7 +342,15 @@ public class SuperMente extends SingleAgent {
         while(!exploracion_terminada){
             System.out.println("El método explorarMapa no está hecho.");
             exploracion_terminada = true;
+            exito = true;
         }
+
+        /* Pruebas */
+        for (EstadoVehiculo vehiculo : vehiculos){
+            sendMessageVehiculo(ACLMessage.QUERY_REF, "", vehiculo.id);
+            receiveMessage();
+        }
+        /* Fin de prueba */
 
         return exito;
     }
@@ -403,6 +429,7 @@ public class SuperMente extends SingleAgent {
 
         outbox.setPerformative(performativa);
 
+        System.out.println("Supermente envia a controlador: " + message);
 
         send(outbox);
     }
@@ -421,6 +448,8 @@ public class SuperMente extends SingleAgent {
         outbox.setConversationId(conversationID);
         outbox.setPerformative(performativa);
 
+        System.out.println("Supermente envía a vehículo " + aid.toString() + ": " + message);
+
         send(outbox);
     }
 
@@ -436,10 +465,10 @@ public class SuperMente extends SingleAgent {
         try {
             inbox = receiveACLMessage();
             /* Imprimir para debug */
-            System.out.println(inbox.getContent());
+            System.out.println("Supermente recibe " + inbox.getContent());
             /**/
 
-            if (inbox.getSender() == controllerID) {
+            if (inbox.getSender().toString().equals(controllerID.toString())) {
                 replyWith = inbox.getReplyWith();
             }
 
