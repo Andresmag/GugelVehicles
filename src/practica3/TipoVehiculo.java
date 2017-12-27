@@ -1,9 +1,12 @@
 package practica3;
 
 /**
- * @author Jose Luis Martínez Ortiz
- * Emunerado para distinguir los tipos de vehículo
+ * @author Jose Luis Martínez Ortiz, David Vargas Carrillo
+ * Enumerado para distinguir los tipos de vehículo
  */
+
 public enum TipoVehiculo {
-    dron,coche,camion
+    DRON,
+    COCHE,
+    CAMION
 }

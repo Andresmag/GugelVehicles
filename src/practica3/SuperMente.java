@@ -23,10 +23,9 @@ import java.util.ArrayList;
 
 public class SuperMente extends SingleAgent {
 
-
-    //DATOS MIEMBROS
+    // DATOS MIEMBROS
     private AgentID controllerID;
-    private String mapa; // Si va a logearse tiene que saber a que mapa
+    private String mapa;                // Si va a loguearse tiene que saber a que mapa
     private String conversationID;
     private String replyWith;
     private GugelCarView view;
@@ -81,6 +80,7 @@ public class SuperMente extends SingleAgent {
     public void init(){
         /*FUTURO INIT* /
         comenzarSesion();
+
         /*INIT DEPRECATED, ACTUALMENTE PARA PRUEBAS*/
         JsonObject jsonLogin = Json.object();
         jsonLogin.add(Mensajes.AGENT_COM_WORLD, mapa);
@@ -125,7 +125,7 @@ public class SuperMente extends SingleAgent {
                         registrarVehiculo(vehiculo);
 
                         //Cuando tengamos el drón
-                        if (vehiculo.tipoVehiculo == TipoVehiculo.dron){
+                        if (vehiculo.tipoVehiculo == TipoVehiculo.DRON){
                             tenemos_dron = true;
                             // dejamos de registrar más vehículos si vamos a explorar
                             if(!exploracion_exitosa)
@@ -221,13 +221,13 @@ public class SuperMente extends SingleAgent {
 
                 for (EstadoVehiculo vehiculo : vehiculos){
                     switch (vehiculo.tipoVehiculo){
-                        case dron:
+                        case DRON:
                             nombre += "dron_";
                             break;
-                        case coche:
+                        case COCHE:
                             nombre += "coche_";
                             break;
-                        case camion:
+                        case CAMION:
                             nombre += "camion_";
                             break;
                     }
@@ -277,13 +277,13 @@ public class SuperMente extends SingleAgent {
         String tipoVehiculo = inbox.getContent();
 
         if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_HELICOPTERO)){
-            vehiculo.tipoVehiculo = TipoVehiculo.dron;
+            vehiculo.tipoVehiculo = TipoVehiculo.DRON;
         }
         else if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_CAMION)){
-            vehiculo.tipoVehiculo = TipoVehiculo.camion;
+            vehiculo.tipoVehiculo = TipoVehiculo.CAMION;
         }
         else if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_COCHE)){
-            vehiculo.tipoVehiculo = TipoVehiculo.coche;
+            vehiculo.tipoVehiculo = TipoVehiculo.COCHE;
         }
     }
 
@@ -350,17 +350,17 @@ public class SuperMente extends SingleAgent {
         int inicio = 0, ancho = 0;
 
         switch (vehiculo.tipoVehiculo){
-            case dron:
+            case DRON:
                 inicio = 1;
                 ancho = 3;
                 break;
 
-            case coche:
+            case COCHE:
                 inicio = 2;
                 ancho = 5;
                 break;
 
-            case camion:
+            case CAMION:
                 inicio = 5;
                 ancho = 11;
                 break;

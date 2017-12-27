@@ -94,7 +94,7 @@ public class Vehiculo extends SingleAgent {
     }
 
     /**
-     * Hace checking y resetea las cosas.
+     * Hace checkin y resetea las cosas
      * Hay que pasarle el mensaje recibido de supermente con la petición de checkin
      * @author Diego Iáñez Ávila
      */
@@ -220,7 +220,6 @@ public class Vehiculo extends SingleAgent {
             outbox.setInReplyTo(replyWith);
 
         outbox.setPerformative(performativa);
-
 
         send(outbox);
     }
