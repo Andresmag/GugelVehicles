@@ -350,6 +350,11 @@ public class SuperMente extends SingleAgent {
             sendMessageVehiculo(ACLMessage.QUERY_REF, "", vehiculo.id);
             receiveMessage();
         }
+
+        for (EstadoVehiculo vehiculo : vehiculos){
+            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando("refuel"), vehiculo.id);
+            receiveMessage();
+        }
         /* Fin de prueba */
 
         return exito;
