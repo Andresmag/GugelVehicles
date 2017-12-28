@@ -47,7 +47,7 @@ public class SuperMente extends SingleAgent {
 
     /**
      * Constructor para la view
-     * @autor Diego Iáñez Ávila, Andrés Molina López
+     * @author Diego Iáñez Ávila, Andrés Molina López
      */
     public SuperMente(String map, AgentID aid, GugelCarView v) throws Exception {
         super(aid);
@@ -62,7 +62,7 @@ public class SuperMente extends SingleAgent {
     // de fallos y deje compilar
     /**
      * Constructor
-     * @autor Diego Iáñez Ávila, Andrés Molina López
+     * @author Diego Iáñez Ávila, Andrés Molina López
      */
     SuperMente(String map, AgentID aid) throws Exception {
         super(aid);
@@ -113,15 +113,15 @@ public class SuperMente extends SingleAgent {
     /**
      * Método de ejecución de la supermente
      *
-     * @author Ángel Píñar Rivas, Jose Luis Martínez Ortiz
+     * @author Ángel Píñar Rivas, Jose Luis Martínez Ortiz, David Vargas Carrillo
      */
     @Override
     public void execute(){
-        boolean salir=false;
-        boolean exploracion_exitosa=false;
+        boolean finalizar = false;
+        boolean exploracion_exitosa = false;
         boolean tenemos_dron = false;
 
-        while(!salir) {
+        while(!finalizar) {
             switch (status) {
                 case Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO:
                     comenzarSesion();
@@ -162,11 +162,12 @@ public class SuperMente extends SingleAgent {
 
                     break;
                 case Mensajes.SUPERMENTE_STATUS_YENDO_OBJ:
-                    salir = irAlObjetivo();
-                    status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO; //Si salir es true esto da igual, pero si es false toca volver a intentarlo.
+                    finalizar = irAlObjetivo();
+                    status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
 
-                    //Si por algún motivo terminamos y no completamos el mapa, reiniciamos
-                    if(!salir){
+                    // Si no se consigue llegar al objetivo, se reinicia la sesion
+                    if(!finalizar){
+                        System.out.println("No se ha podido alcanzar el objetivo");
                         reiniciarSesion();
                     }
 
@@ -314,18 +315,24 @@ public class SuperMente extends SingleAgent {
     }
 
     /**
-     * Envía a los vehículos hacia el objetivo
+     * Una vez localizado el objetivo, envia a los vehiculos hacia el mismo
      *
-     * @author Ángel Píñar Rivas
-     * @return True si estamos conformes con la cantidad de vehículos que han llegado al objetivo
+     * @author David Vargas Carrillo, Ángel Píñar Rivas
+     * @return true si todos los vehiculos han alcanzado el objetivo, false en caso contrario
      */
-    private boolean irAlObjetivo(){
-        boolean conformes = false;
+    private boolean irAlObjetivo() {
+        int numVehiculos = 0;       // Numero de vehiculos que han alcanzado el objetivo
+        boolean terminar = false;   // True si se ha alcanzado el objetivo o si se han quedado sin bateria
 
-        System.out.println("El método irAlObjetivo no está hecho.");
-        conformes = true;
+        while (!terminar) {
+            /*
+            Mover en cada paso cada vehiculo que no lo haya alcanzado hacia el objetivo, comprobar bateria, y
+            comprobar si lo ha alcanzado despues. Contabilizarlo en ese caso en numVehiculos.
+             */
+        }
 
-        return conformes;
+        if (numVehiculos == vehiculos.size()) return true;
+        else return false;
     }
 
     /**
@@ -440,7 +447,7 @@ public class SuperMente extends SingleAgent {
     }
 
     /**
-     * Enviar un mensaje a Supermente
+     * Enviar un mensaje a Vehiculo
      *
      * @author Andrés Molina López
      * @param message Mensaje a enviar
