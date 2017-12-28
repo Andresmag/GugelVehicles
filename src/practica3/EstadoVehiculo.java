@@ -32,6 +32,4 @@ public class EstadoVehiculo {
         this.battery = battery;
         this.tipoVehiculo = tipoVehiculo;
     }
-
-
 }
