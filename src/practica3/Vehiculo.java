@@ -57,15 +57,16 @@ public class Vehiculo extends SingleAgent {
             switch (status){
                 case Mensajes.VEHICLE_STATUS_CHECKIN:
                     checkin();
-
                     break;
+
                 case Mensajes.VEHICLE_STATUS_CONFIRMANDO_TIPO:
                     tipoVehiculo();
-
                     break;
+
                 case Mensajes.VEHICLE_STATUS_PERCIBIENDO:
                     informarPercepcion();
                     break;
+
                 case Mensajes.VEHICLE_STATUS_ESCUCHANDO_ORDEN:
                     escucharOrden();
                     break;
