@@ -85,6 +85,7 @@ public class Vehiculo extends SingleAgent {
         System.out.println(getAid().toString() + " finalizado.");
     }
 
+    // @todo Revisar redundancia aqui, entre checkin() y hacerCheckin()
     /**
      * Estado Haciendo checkin
      * @author Diego Iáñez Ávila
