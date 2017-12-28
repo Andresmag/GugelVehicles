@@ -12,7 +12,7 @@ import es.upv.dsic.gti_ia.core.SingleAgent;
 public class Vehiculo extends SingleAgent {
 
 
-    private String password;
+    private String password;                        // @todo revisar la funcionalidad de password
     private AgentID controllerID, supermenteID;
     private String conversationID;
     private String replyWith = null;
@@ -86,6 +86,7 @@ public class Vehiculo extends SingleAgent {
         System.out.println(getAid().toString() + " finalizado.");
     }
 
+    // @todo Revisar redundancia aqui, entre checkin() y hacerCheckin()
     /**
      * Estado Haciendo checkin
      * @author Diego Iáñez Ávila
@@ -113,7 +114,7 @@ public class Vehiculo extends SingleAgent {
 
     /**
      * Estado Confirmando tipo de vehículo
-     * @author Diego Iañez Ávila, Andrés Molina López
+     * @author Diego Iañez Ávila, Andrés Molina López, David Vargas Carrillo
      */
     private void tipoVehiculo(){
         ACLMessage inbox = receiveMessage();
@@ -123,16 +124,16 @@ public class Vehiculo extends SingleAgent {
             String tipo = "";
 
             // Mensaje de controlador: dice nuestras capacidades
-            if (inbox.getPerformativeInt() == ACLMessage.INFORM){
+            if (inbox.getPerformativeInt() == ACLMessage.INFORM) {
                 contenido = Json.parse(inbox.getContent()).asObject();
                 String respuesta = contenido.get(Mensajes.AGENT_COM_RESULT).asString();
 
-                if (respuesta.equals(Mensajes.AGENT_COM_OK)){
+                if (respuesta.equals(Mensajes.AGENT_COM_OK)) {
                     JsonObject capabilities = contenido.get(Mensajes.AGENT_COM_CAPABILITIES).asObject();
                     int fuel = capabilities.get(Mensajes.AGENT_COM_FUELRATE).asInt();
                     int range = capabilities.get(Mensajes.AGENT_COM_RANGE).asInt();
                     boolean fly = capabilities.get(Mensajes.AGENT_COM_FLY).asBoolean();
-                    if(fly){
+                    if (fly) {
                         tipo = (Mensajes.VEHICLE_TYPE_HELICOPTERO);
                     } else {
                         if (range > 5)
@@ -142,7 +143,6 @@ public class Vehiculo extends SingleAgent {
                     }
                 }
             }
-
             sendMessageSupermente(ACLMessage.INFORM, tipo);
         }
         else{
@@ -164,7 +164,7 @@ public class Vehiculo extends SingleAgent {
 
     /**
      * Estado informando percepción a supermente
-     * @author Diego Iáñez Ávila
+     * @author Diego Iáñez Ávila, David Vargas Carrillo, Andrés Molina López
      */
     private void informarPercepcion(){
         ACLMessage inbox = receiveMessage();
@@ -172,8 +172,12 @@ public class Vehiculo extends SingleAgent {
         // Recibir percepción de controlador y reenviar a supermente
         if (inbox.getSender().toString().equals(controllerID.toString()) && inbox.getPerformativeInt() == ACLMessage.INFORM){
             sendMessageSupermente(ACLMessage.INFORM, inbox.getContent());
-
             status = Mensajes.VEHICLE_STATUS_ESCUCHANDO_ORDEN;
+        }
+        // Si el controlador nos envia un refuse porque no puede recargar la bateria del coche, se para su ejecucion
+        else if (inbox.getSender().toString().equals(controllerID.toString()) && inbox.getPerformativeInt() == ACLMessage.REFUSE){
+            sendMessageSupermente(ACLMessage.REFUSE, inbox.getContent());
+            status = Mensajes.VEHICLE_STATUS_TERMINAR;
         }
     }
 

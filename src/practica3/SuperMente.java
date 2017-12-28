@@ -3,6 +3,7 @@ package practica3;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
+import com.sun.mail.imap.ACL;
 import com.sun.xml.internal.ws.resources.SenderMessages;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
@@ -118,7 +119,7 @@ public class SuperMente extends SingleAgent {
     @Override
     public void execute(){
         boolean finalizar = false;
-        boolean exploracion_exitosa = false;
+        boolean exploracionFinalizada = false;
         boolean tenemos_dron = false;
 
         while(!finalizar) {
@@ -136,12 +137,12 @@ public class SuperMente extends SingleAgent {
                         if (vehiculo.tipoVehiculo == TipoVehiculo.DRON){
                             tenemos_dron = true;
                             // dejamos de registrar más vehículos si vamos a explorar
-                            //if(!exploracion_exitosa)
+                            //if(!exploracionFinalizada)
                             //    break;
                         }
                     }
 
-                    if(!exploracion_exitosa) {
+                    if(!exploracionFinalizada) {
                         if(tenemos_dron) {
                             status = Mensajes.SUPERMENTE_STATUS_EXPLORACION;
                         }else{
@@ -154,7 +155,7 @@ public class SuperMente extends SingleAgent {
 
                     break;
                 case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
-                    exploracion_exitosa = explorarMapa();
+                    exploracionFinalizada = explorarMapa();
 
                     //Cuando termino de explorar vuelvo a empezar según la exploración
                     reiniciarSesion();
@@ -336,35 +337,154 @@ public class SuperMente extends SingleAgent {
     }
 
     /**
-     * Gestiona y ordena a los vehiculos para que exploren el mapa.
-     * Termina cuando se ha explorado el mapa completo TODO ¿O cuando encuentran el objetivo?
+     * Explora el mapa completamente utilizando el vehículo de tipo DRON
      *
-     * @author Ángel Píñar Rivas
-     * @return True si se ha terminado la exploración con éxito antes de quedarse sin batería.
+     * @author David Vargas Carrillo, Andrés Molina López
+     * @return estado final de la exploracion (true si se ha explorado el mapa completo)
      */
     private boolean explorarMapa(){
-        boolean exploracion_terminada = false;
-        boolean exito = false;
+        boolean arriba = false;                             // Movimiento hacia arriba o hacia abajo
+        int esquinasExploradas = 0;                         // Numero de esquinas exploradas (cuando sea 4, terminar)
 
-        while(!exploracion_terminada){
-            System.out.println("El método explorarMapa no está hecho.");
-            exploracion_terminada = true;
-            exito = true;
+        // Propiedades del dron
+        EstadoVehiculo dron = null;
+
+        // Obtencion del ID del dron
+        for (EstadoVehiculo vehiculo : vehiculos) {
+            if (vehiculo.tipoVehiculo == TipoVehiculo.DRON)
+                dron = vehiculo;
         }
 
-        /* Pruebas */
-        for (EstadoVehiculo vehiculo : vehiculos){
-            sendMessageVehiculo(ACLMessage.QUERY_REF, "", vehiculo.id);
-            receiveMessage();
+        // Obtencion de la percepcion
+        sendMessageVehiculo(ACLMessage.QUERY_REF, jsonComando("percepcion"), dron.id);
+        recogerPercepcion(dron);
+
+        // Determinación de la posicion inicial en el mapa
+        if (dron.coor_x == 0)
+            arriba = true;        // Empezamos en la parte superior, de otro modo, en la inferior
+
+        // Movimiento a la izquierda, hasta la columna 0
+        while(dron.coor_y > 0) {
+            if (dron.battery > 1) {
+                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), dron.id);
+                if (!recogerPercepcion(dron)) return false;
+            } else {
+                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
+                if (!recogerPercepcion(dron)) return false;
+            }
+        }
+        esquinasExploradas++;     // Se ha llegado a la esquina izquierda inferior o superior
+
+        boolean mov_derecha = true;
+        // Bucle de exploracion
+        while (esquinasExploradas < 4) {
+            if (mov_derecha) {
+                while(mapaMundo[dron.coor_x][dron.coor_y + 1] != 2) {
+                    if (dron.battery > 1) {
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_E), dron.id);
+                        recogerPercepcion(dron);
+                    } else {
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
+                        if (!recogerPercepcion(dron)) return false;
+                    }
+                }
+                // Se comprueba si estamos en una esquina
+                if ((mapaMundo[dron.coor_x - 1][dron.coor_y] == 2) || (mapaMundo[dron.coor_x + 1][dron.coor_y] == 2)) {
+                    esquinasExploradas++;
+                }
+                mov_derecha = false;
+            }
+            else {
+                while(mapaMundo[dron.coor_x][dron.coor_y - 1] != 2) {
+                    if (dron.battery > 1) {
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), dron.id);
+                        recogerPercepcion(dron);
+                    } else {
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
+                        if (!recogerPercepcion(dron)) return false;
+                    }
+                }
+                // Se comprueba si estamos en una esquina
+                if ((mapaMundo[dron.coor_x - 1][dron.coor_y] == 2) || (mapaMundo[dron.coor_x + 1][dron.coor_y] == 2)) {
+                    esquinasExploradas++;
+                }
+                mov_derecha = true;
+            }
+
+            if (esquinasExploradas < 4) {
+                if (arriba) {
+                    // Moverse hacia abajo
+                    boolean seguir_mov = true;
+                    int movs = 0;
+                    do {
+                        if (mapaMundo[dron.coor_x + 1][dron.coor_y] != 2) {
+                            if (dron.battery > 1) {
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_S), dron.id);
+                                recogerPercepcion(dron);
+                                movs++;
+                            } else {
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
+                                if (!recogerPercepcion(dron)) return false;
+                            }
+                        } else
+                            seguir_mov = false;
+                    } while (seguir_mov && movs < 3);
+
+                    // Se comprueba si estamos en una esquina
+                    if (mapaMundo[dron.coor_x + 1][dron.coor_y] == 2) {
+                        esquinasExploradas++;
+                    }
+                } else {
+                    // Moverse hacia arriba
+                    boolean seguir_mov = true;
+                    int movs = 0;
+                    do {
+                        if (mapaMundo[dron.coor_x - 1][dron.coor_y] != 2) {
+                            if (dron.battery > 1) {
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_N), dron.id);
+                                recogerPercepcion(dron);
+                                movs++;
+                            } else {
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
+                                if (!recogerPercepcion(dron)) return false;
+                            }
+                        } else
+                            seguir_mov = false;
+                    } while (seguir_mov && movs < 3);
+
+                    // Se comprueba si estamos en una esquina
+                    if (mapaMundo[dron.coor_x + 1][dron.coor_y] == 2) {
+                        esquinasExploradas++;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Recibe y procesa la percepcion del vehiculo indicado
+     * @author David Vargas Carrillo, Andrés Molina López
+     *
+     * @param vehiculo objeto de EstadoVehiculo
+     * @return si el estado del vehiculo ha sido actualizado
+     */
+    private boolean recogerPercepcion(EstadoVehiculo vehiculo) {
+        boolean actualizado = true;
+
+        // Recibir percepción
+        ACLMessage respuesta = receiveMessage();
+
+        if (respuesta.getPerformativeInt() == ACLMessage.INFORM) {
+            JsonObject contenido = Json.parse(respuesta.getContent()).asObject();
+            String percepcion = contenido.get(Mensajes.AGENT_COM_RESULT).asString();
+            // Actualizar percepción
+            procesarPercepcion(vehiculo, percepcion);
+        } else if (respuesta.getPerformativeInt() == ACLMessage.REFUSE) {
+            actualizado = false;
         }
 
-        for (EstadoVehiculo vehiculo : vehiculos){
-            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando("refuel"), vehiculo.id);
-            receiveMessage();
-        }
-        /* Fin de prueba */
-
-        return exito;
+        return actualizado;
     }
 
     /**
