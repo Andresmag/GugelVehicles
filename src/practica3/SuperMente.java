@@ -15,10 +15,7 @@ import javax.swing.*;
 import java.awt.geom.Point2D;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * Supermente, clase controladora de los vehículos zombies.
@@ -358,6 +355,50 @@ public class SuperMente extends SingleAgent {
         else return true;
     }
 
+
+    /**
+     * Clase para contener la información de cada celda de la matriz del mapa.
+     *
+     * @author Jose Luis Martínez Ortiz
+     */
+    class Nodo{
+        //TODO terminar de documentar.
+        public Point2D.Double punto;
+        public double g_coste;
+        public double f_coste;
+        public String accion;
+        public Nodo anterior;
+
+        public Nodo(Point2D.Double punto, double g_coste, Point2D.Double goal, String accion, Nodo anterior) {
+            this.punto = punto;
+            this.g_coste = g_coste;
+            this.f_coste = punto.distance(goal) + g_coste;
+            this.accion = accion;
+            this.anterior = anterior;
+        }
+
+        public Nodo() {
+
+        }
+
+        public double x(){
+            return punto.getX();
+        }
+        public double y(){
+            return punto.getY();
+        }
+
+        // TODO Revisar que contains de LinkedList funciona con equals
+        @Override
+        public boolean equals(Object n){
+            if(x() == ((Nodo) n).x() && y() == ((Nodo) n).y())
+                return true;
+            return false;
+        }
+
+    }
+
+
     /**
      * @author Ángel Píñar Rivas, Jose Luis Martínez Ortiz
      * @param goalX Coordenada X del objetivo.
@@ -365,78 +406,117 @@ public class SuperMente extends SingleAgent {
      * @param vehiculo vehiculo para buscar su ruta al objetivo.
      *
      */
-    private Queue<String> encontrarRuta(int goalX, int goalY, EstadoVehiculo vehiculo){
-        Queue<String> acciones = new LinkedList<String>();
-        Point2D goal = new Point2D.Float(goalX,goalY);
+    private Stack<String> encontrarRuta(int goalX, int goalY, EstadoVehiculo vehiculo){
+        Stack<String> acciones = new Stack<String>();
+        Point2D.Double goal = new Point2D.Double(goalX,goalY);
 
-        LinkedList<Point2D> abiertos = new LinkedList<Point2D>();
-        LinkedList<Point2D> cerrados = new LinkedList<Point2D>();
+        LinkedList<Nodo> abiertos = new LinkedList<Nodo>();
+        LinkedList<Nodo> cerrados = new LinkedList<Nodo>();
 
-        abiertos.add(new Point2D.Double(vehiculo.coor_x, vehiculo.coor_y));
+        abiertos.add(new Nodo(new Point2D.Double(vehiculo.coor_x, vehiculo.coor_y),0,goal,"",null));
 
         boolean terminado = false;
-        Point2D actual;
+        Nodo actual;
 
-        while(!terminado){
-            actual = posCosteMasBajo(abiertos, goal);
+        while(!abiertos.isEmpty()){
+            actual = posCosteMasBajo(abiertos);
+
+            if(actual.punto.equals(goal)){
+                //Sacar la lista de acciones
+                return recontruirRuta(actual);
+
+            }
             cerrados.add(actual);
             abiertos.remove(actual);
+
+            // Miramos los posibles movimientos
+            ArrayList<Nodo> nodosVecinos = new ArrayList<>();
+            //NOROESTE //TODO REVISAR LOS -1 +1 de las posiciones
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()-1),actual.g_coste + 1,
+                    goal,Mensajes.AGENT_COM_ACCION_MV_NW,actual ));
+
+            //NORTE
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x(),actual.y()-1),actual.g_coste + 1,
+                    goal,Mensajes.AGENT_COM_ACCION_MV_N,actual ));
+
+            //NORESTE
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()+1,actual.y()-1),actual.g_coste + 1,
+                    goal,Mensajes.AGENT_COM_ACCION_MV_NE,actual ));
+
+            //OESTE
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()),actual.g_coste + 1,
+                    goal,Mensajes.AGENT_COM_ACCION_MV_W,actual ));
+
+            //OESTE
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()+1,actual.y()),actual.g_coste + 1,
+                    goal,Mensajes.AGENT_COM_ACCION_MV_E,actual ));
+
+            //SUROESTE
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()+1),actual.g_coste + 1,
+                    goal,Mensajes.AGENT_COM_ACCION_MV_SW,actual ));
+
+            //SUR
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x(),actual.y()+1),actual.g_coste + 1,
+                    goal,Mensajes.AGENT_COM_ACCION_MV_S,actual ));
+
+
+            //SURESTE
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()+1),actual.g_coste + 1,
+                    goal,Mensajes.AGENT_COM_ACCION_MV_NE,actual ));
+
+            //Si el vecino es válido lo añado a abiertos
+
+            for (Nodo nodoVecino:nodosVecinos) {
+                if(!cerrados.contains(nodoVecino) &&
+                        mapaMundo[(int)nodoVecino.x()][(int)nodoVecino.y()] != 2 &&
+                        mapaMundo[(int)nodoVecino.x()][(int)nodoVecino.y()] != 4){
+                    abiertos.add(nodoVecino);
+                }
+
+            }
+
         }
+
 
         return acciones;
     }
+
 
     /** Calcula la posición con menor valor heuristico de una lista
      *
      * @author Ángel Píñar Rivas, José Luis Martínez Ortiz
      *
      * @param listaPos Lista de posiciones sobre las que realizar la comprobación
-     * @param objetivo Objetivo al que se pretende ir
      * @return La posición con menor valor heuristico
      */
-    private Point2D posCosteMasBajo(LinkedList<Point2D> listaPos, Point2D objetivo){
+    private Nodo posCosteMasBajo(LinkedList<Nodo> listaPos){
         double costeMinimo = Double.MAX_VALUE;
-        double coste;
-        Point2D pos_resultado = new Point2D.Double();
-        for(Point2D p: listaPos){
-            coste = calcularCostePos(p, objetivo);
-            if(coste < costeMinimo){
-                costeMinimo = coste;
-                pos_resultado = p;
+        Nodo nodo_resultado = new Nodo();
+        for(Nodo nodo: listaPos){
+            if(nodo.f_coste < costeMinimo){
+                costeMinimo = nodo.f_coste;
+                nodo_resultado = nodo;
             }
         }
-        return pos_resultado;
-    }
-
-    /** Calcula el valor/coste heuristico de una posicion en el mapa.
-     *
-     * @author José Luis Martínez Ortiz, Ángel Píñar Rivas
-     *
-     * @param posicion Posicion de la cual se quiere calcular el coste
-     * @param objetivo Objetivo al que se pretende ir
-     * @return El coste heuristico de la posicion.
-     */
-    private double calcularCostePos(Point2D posicion, Point2D objetivo){
-        double coste;
-
-        coste = posicion.distance(objetivo);
-
-        return coste;
+        return nodo_resultado;
     }
 
 
     /**
-     * @author Ángel Píñar Rivas, Jose Luis Martínez Ortiz
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
-     * @return distancia entre el punto 1 y el punto 2
+     * Reconstruye la ruta hasta el origen.
+     * @author Jose Luis Martínez Ortiz
+     * @param nodo nodo final de una ruta.
+     * @return una secuencia de acciones para llegar al nodo.
      */
-    private float distanciaEntreCoordenadas(int x1, int y1, int x2, int y2){
-        float resultado = 0;
-        resultado = (float) Math.hypot(x1-x2,y1-y2);
-        return resultado;
+    private Stack<String> recontruirRuta(Nodo nodo){
+        Stack<String> acciones = new Stack<String>();
+
+        while (nodo.anterior != null){
+            acciones.push(nodo.accion);
+            nodo = nodo.anterior;
+        }
+
+        return acciones;
     }
 
     /**
