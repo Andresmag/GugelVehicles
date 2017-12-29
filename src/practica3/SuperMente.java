@@ -12,9 +12,12 @@ import org.codehaus.jettison.json.JSONObject;
 import practica3.GUI.GugelCarView;
 
 import javax.swing.*;
+import java.awt.geom.Point2D;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Supermente, clase controladora de los vehículos zombies.
@@ -38,6 +41,7 @@ public class SuperMente extends SingleAgent {
 
     // Memoria del mundo que ha pisado el agente y donde se encuentra actualmente
     private int [][] mapaMundo = new int[1000][1000];
+    private int goalLeft,goalRight,goalTop,goalBottom; //TODO rellenar en la exploración
 
     // Batería total en el mundo. Se actualiza cada vez que se procesa la percepción de un vehículo.
     private int bateriaTotal;
@@ -337,10 +341,53 @@ public class SuperMente extends SingleAgent {
             Mover en cada paso cada vehiculo que no lo haya alcanzado hacia el objetivo, comprobar bateria, y
             comprobar si lo ha alcanzado despues. Contabilizarlo en ese caso en numVehiculos.
              */
+            /*
+            Tenemos el perímetro del objetivo (borde superior, inferior, izquierdo, derecho), los dos primeros vehículos
+            realizarán el A* teniendo como meta el interior del objetivo (borde superior - 1, inferior +1, izq +1, der -1),
+             asumiendo que el 0,0 está en la esquina inferior izquierda. Los vehículos 3 y 4 tendrán como meta la periferia.
+
+             */
+
+
+
         }
 
         if (numVehiculos == vehiculos.size()) return true;
         else return false;
+    }
+
+    /**
+     * @author Ángel Píñar Rivas, Jose Luis Martínez Ortiz
+     * @param goalX Coordenada X del objetivo.
+     * @param goalY Coordenada y del objetivo.
+     * @param vehiculo vehiculo para buscar su ruta al objetivo.
+     *
+     */
+    private List<String> encontrarRuta(int goalX, int goalY, EstadoVehiculo vehiculo){
+        Point2D goal = new Point2D.Float(goalX,goalY);
+
+        LinkedList<String> abiertos = new LinkedList<String>();
+        LinkedList<String> cerrados = new LinkedList<String>();
+
+        abiertos.add();
+
+
+
+    }
+
+
+    /**
+     * @author Ángel Píñar Rivas, Jose Luis Martínez Ortiz
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return distancia entre el punto 1 y el punto 2
+     */
+    private float distanciaEntreCoordenadas(int x1, int y1, int x2, int y2){
+        float resultado = 0;
+        resultado = (float) Math.hypot(x1-x2,y1-y2);
+        return resultado;
     }
 
     /**
