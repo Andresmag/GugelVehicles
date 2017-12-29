@@ -126,6 +126,7 @@ public class SuperMente extends SingleAgent {
             switch (status) {
                 case Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO:
                     comenzarSesion();
+                    //finalizarSesion(); // -> Descomentar en caso de que la ejecución se quede colgada y comentar en main el inicio de vehiculos
                     status = Mensajes.SUPERMENTE_STATUS_CONTANDOVEHICULOS;
                     break;
                 case Mensajes.SUPERMENTE_STATUS_CONTANDOVEHICULOS:
@@ -158,7 +159,13 @@ public class SuperMente extends SingleAgent {
                     exploracionFinalizada = explorarMapa();
 
                     //Cuando termino de explorar vuelvo a empezar según la exploración
-                    reiniciarSesion();
+                    if(exploracionFinalizada){
+                        finalizarSesion();
+                    } else{
+                        System.out.println("No se ha podido explorar el mapa completo");
+                        finalizarSesion();
+                    }
+                    //reiniciarSesion();
                     status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
 
                     break;
@@ -349,7 +356,7 @@ public class SuperMente extends SingleAgent {
         // Propiedades del dron
         EstadoVehiculo dron = null;
 
-        // Obtencion del ID del dron
+        // Obtencion del estado del dron
         for (EstadoVehiculo vehiculo : vehiculos) {
             if (vehiculo.tipoVehiculo == TipoVehiculo.DRON)
                 dron = vehiculo;
@@ -360,13 +367,17 @@ public class SuperMente extends SingleAgent {
         recogerPercepcion(dron);
 
         // Determinación de la posicion inicial en el mapa
-        if (dron.coor_x == 0)
+        if (dron.coor_y == 0)
             arriba = true;        // Empezamos en la parte superior, de otro modo, en la inferior
 
         // Movimiento a la izquierda, hasta la columna 0
-        while(dron.coor_y > 0) {
-            if (dron.battery > 1) {
-                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), dron.id);
+        while(dron.coor_x > 0) {
+            if (dron.battery > 2) {
+                if(mapaMundo[dron.coor_y][dron.coor_x - 1] != 4)
+                    sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), dron.id);
+                else{
+                    // @todo Evitar los vehiculos que haya en el mapa bordeandolos en zigzag
+                }
                 if (!recogerPercepcion(dron)) return false;
             } else {
                 sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
@@ -379,8 +390,8 @@ public class SuperMente extends SingleAgent {
         // Bucle de exploracion
         while (esquinasExploradas < 4) {
             if (mov_derecha) {
-                while(mapaMundo[dron.coor_x][dron.coor_y + 1] != 2) {
-                    if (dron.battery > 1) {
+                while(mapaMundo[dron.coor_y][dron.coor_x + 1] != 2) {
+                    if (dron.battery > 2) {
                         sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_E), dron.id);
                         recogerPercepcion(dron);
                     } else {
@@ -389,14 +400,14 @@ public class SuperMente extends SingleAgent {
                     }
                 }
                 // Se comprueba si estamos en una esquina
-                if ((mapaMundo[dron.coor_x - 1][dron.coor_y] == 2) || (mapaMundo[dron.coor_x + 1][dron.coor_y] == 2)) {
+                if ((mapaMundo[dron.coor_y - 1][dron.coor_x] == 2) || (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2)) {
                     esquinasExploradas++;
                 }
                 mov_derecha = false;
             }
             else {
-                while(mapaMundo[dron.coor_x][dron.coor_y - 1] != 2) {
-                    if (dron.battery > 1) {
+                while(mapaMundo[dron.coor_y][dron.coor_x - 1] != 2) {
+                    if (dron.battery > 2) {
                         sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), dron.id);
                         recogerPercepcion(dron);
                     } else {
@@ -405,7 +416,7 @@ public class SuperMente extends SingleAgent {
                     }
                 }
                 // Se comprueba si estamos en una esquina
-                if ((mapaMundo[dron.coor_x - 1][dron.coor_y] == 2) || (mapaMundo[dron.coor_x + 1][dron.coor_y] == 2)) {
+                if ((mapaMundo[dron.coor_y - 1][dron.coor_x] == 2) || (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2)) {
                     esquinasExploradas++;
                 }
                 mov_derecha = true;
@@ -417,8 +428,8 @@ public class SuperMente extends SingleAgent {
                     boolean seguir_mov = true;
                     int movs = 0;
                     do {
-                        if (mapaMundo[dron.coor_x + 1][dron.coor_y] != 2) {
-                            if (dron.battery > 1) {
+                        if (mapaMundo[dron.coor_y + 1][dron.coor_x] != 2) {
+                            if (dron.battery > 2) {
                                 sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_S), dron.id);
                                 recogerPercepcion(dron);
                                 movs++;
@@ -431,7 +442,7 @@ public class SuperMente extends SingleAgent {
                     } while (seguir_mov && movs < 3);
 
                     // Se comprueba si estamos en una esquina
-                    if (mapaMundo[dron.coor_x + 1][dron.coor_y] == 2) {
+                    if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2) {
                         esquinasExploradas++;
                     }
                 } else {
@@ -439,8 +450,8 @@ public class SuperMente extends SingleAgent {
                     boolean seguir_mov = true;
                     int movs = 0;
                     do {
-                        if (mapaMundo[dron.coor_x - 1][dron.coor_y] != 2) {
-                            if (dron.battery > 1) {
+                        if (mapaMundo[dron.coor_y - 1][dron.coor_x] != 2) {
+                            if (dron.battery > 2) {
                                 sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_N), dron.id);
                                 recogerPercepcion(dron);
                                 movs++;
@@ -453,7 +464,7 @@ public class SuperMente extends SingleAgent {
                     } while (seguir_mov && movs < 3);
 
                     // Se comprueba si estamos en una esquina
-                    if (mapaMundo[dron.coor_x + 1][dron.coor_y] == 2) {
+                    if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2) {
                         esquinasExploradas++;
                     }
                 }
@@ -476,10 +487,8 @@ public class SuperMente extends SingleAgent {
         ACLMessage respuesta = receiveMessage();
 
         if (respuesta.getPerformativeInt() == ACLMessage.INFORM) {
-            JsonObject contenido = Json.parse(respuesta.getContent()).asObject();
-            String percepcion = contenido.get(Mensajes.AGENT_COM_RESULT).asString();
             // Actualizar percepción
-            procesarPercepcion(vehiculo, percepcion);
+            procesarPercepcion(vehiculo, respuesta.getContent());
         } else if (respuesta.getPerformativeInt() == ACLMessage.REFUSE) {
             actualizado = false;
         }
