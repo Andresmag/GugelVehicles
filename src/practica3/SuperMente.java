@@ -364,7 +364,8 @@ public class SuperMente extends SingleAgent {
      * @param vehiculo vehiculo para buscar su ruta al objetivo.
      *
      */
-    private List<String> encontrarRuta(int goalX, int goalY, EstadoVehiculo vehiculo){
+    private ArrayList<String> encontrarRuta(int goalX, int goalY, EstadoVehiculo vehiculo){
+        ArrayList<String> acciones = new ArrayList();
         Point2D goal = new Point2D.Float(goalX,goalY);
 
         LinkedList<Point2D> abiertos = new LinkedList<Point2D>();
@@ -373,7 +374,7 @@ public class SuperMente extends SingleAgent {
         abiertos.add(new Point2D.Float(vehiculo.coor_x, vehiculo.coor_y));
 
 
-
+        return acciones;
     }
 
 
