@@ -51,7 +51,7 @@ public class SuperMente extends SingleAgent {
     /**
      * Constructor para la view
      * @author Diego Iáñez Ávila, Andrés Molina López
-     */
+     * /
     public SuperMente(String map, AgentID aid, GugelCarView v) throws Exception {
         super(aid);
 
@@ -67,11 +67,13 @@ public class SuperMente extends SingleAgent {
      * Constructor
      * @author Diego Iáñez Ávila, Andrés Molina López
      */
-    SuperMente(String map, AgentID aid) throws Exception {
+    public SuperMente(String map, AgentID aid, GugelCarView v) throws Exception {
         super(aid);
 
         mapa = map;
         controllerID = new AgentID("Girtab");
+        view = v;
+        status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
     }
 
     /**
@@ -90,7 +92,7 @@ public class SuperMente extends SingleAgent {
             vehiculos.add(new EstadoVehiculo(new AgentID("coche" + i)));
         }
 
-        //reiniciarSesion();
+        // reiniciarSesion();
 
         /*INIT DEPRECATED, ACTUALMENTE PARA PRUEBAS* /
         JsonObject jsonLogin = Json.object();
@@ -717,16 +719,22 @@ public class SuperMente extends SingleAgent {
         int y = vehiculo.coor_y - inicio;
         int xmapa, ymapa;
 
+        ArrayList<Integer> radar = new ArrayList<>();
+
         for (int fila = 0; fila < ancho; ++fila){
             for (int columna = 0; columna < ancho; ++columna){
                 xmapa = x + columna;
                 ymapa = y + fila;
+
+                radar.add(sensor.get(fila*ancho + columna).asInt());
 
                 if (xmapa >= 0 && ymapa >= 0){
                     mapaMundo[xmapa][ymapa] = sensor.get(fila * ancho + columna).asInt();
                 }
             }
         }
+
+        view.updateMap(vehiculo.coor_x, vehiculo.coor_y, radar, ancho, inicio);
     }
 
 

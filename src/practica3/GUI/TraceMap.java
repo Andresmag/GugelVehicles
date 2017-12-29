@@ -12,13 +12,13 @@ public class TraceMap extends JPanel {
 
     private int agentX;
     private int agentY;
-    private int minX, minY, maxX, maxY;
     private ArrayList<Integer> radar;
 
-    private int mapSize = 10001;
-    // Para reducir el tamaño de la imagen. Con tamaño completo tarda demasiado en dibujarla.
-    private int mapReduction = 9000;
+    private int mapSize = 1000;
     private int viewportSize = 500;
+
+    private int ancho = 0;
+    private int inicio = 0;
 
     /**
      * Constructor
@@ -26,7 +26,7 @@ public class TraceMap extends JPanel {
      * @author Diego Iáñez Ávila
      */
     public TraceMap(){
-        map = new BufferedImage(mapSize - mapReduction, mapSize - mapReduction, BufferedImage.TYPE_INT_RGB);
+        map = new BufferedImage(mapSize, mapSize, BufferedImage.TYPE_INT_RGB);
         imageGraphics = map.createGraphics();
         imageGraphics.setColor(Color.GRAY);
         imageGraphics.fillRect(0, 0, mapSize, mapSize);
@@ -34,11 +34,6 @@ public class TraceMap extends JPanel {
         setSize(viewportSize, viewportSize);
         setBackground(Color.GRAY);
         repaint();
-
-        minX = Integer.MAX_VALUE;
-        minY = Integer.MAX_VALUE;
-        maxX = 0;
-        maxY = 0;
     }
 
     /**
@@ -49,14 +44,12 @@ public class TraceMap extends JPanel {
      * @param y posición Y del agente
      * @param radar percepción del radar
      */
-    public void updateMap(int x, int y, ArrayList<Integer> radar){
-        agentX = x - mapReduction / 2;
-        agentY = y - mapReduction / 2;
+    public void updateMap(int x, int y, ArrayList<Integer> radar, int ancho, int inicio){
+        agentX = x;
+        agentY = y;
 
-        minX = Integer.min(agentX, minX);
-        minY = Integer.min(agentY, minY);
-        maxX = Integer.max(agentX, maxX);
-        maxY = Integer.max(agentY, maxY);
+        this.ancho = ancho;
+        this.inicio = inicio;
 
         this.radar = radar;
 
@@ -75,24 +68,23 @@ public class TraceMap extends JPanel {
 
         repaintMap();
 
-        int x = -minX + (viewportSize/2 - (maxX - minY)/2);
-        int y = -minY + (viewportSize/2 - (maxY - minY)/2);
-
-        g.drawImage(map, x, y, this);
+        g.drawImage(map, 0, 0, this);
     }
 
     private void repaintMap(){
+        System.out.println("Repintando mapa....................................................................................");
+        System.out.println("x " + agentX + " y " + agentY + " ancho " + ancho + " inicio " + inicio);
         if (radar != null){
-            int x = agentX - 2;
-            int y = agentY - 2;
+            int x = agentX - inicio;
+            int y = agentY - inicio;
             int value;
             Color color;
 
-            for (int i = 0; i < 5; ++i){
-                for (int j = 0; j < 5; ++j){
-                    value = radar.get(i * 5 + j);
+            for (int i = 0; i < ancho; ++i){
+                for (int j = 0; j < ancho; ++j){
+                    value = radar.get(i * ancho + j);
 
-                    if (i == 2 && j == 2) {
+                    if (i == ancho/2+1 && j == ancho/2+1) {
                         color = Color.GREEN;
                     } else {
                         switch (value) {
@@ -105,7 +97,15 @@ public class TraceMap extends JPanel {
                                 break;
 
                             case 2:
+                                color = Color.DARK_GRAY;
+                                break;
+
+                            case 3:
                                 color = Color.RED;
+                                break;
+
+                            case 4:
+                                color = Color.YELLOW;
                                 break;
 
                             default:

@@ -54,14 +54,10 @@ public class GugelCarView extends JFrame {
         });
 
         setContentPane(contentPane);
-        setTitle("DBA Practica 2: GugelCar");
+        setTitle("DBA Practica 3: GugelCar");
         setLocationRelativeTo(null);
         setSize(650, 400);
         initComponents();
-
-        // Conectarse a la plataforma
-        AgentsConnection.connect("isg2.ugr.es", 6000,
-                Mensajes.AGENT_HOST, Mensajes.AGENT_USER, Mensajes.AGENT_PASS, false);
 
         this.mapaSeleccionado = mapaSeleccionado;
         this.nombreAgente = nombreAgente;
@@ -180,8 +176,8 @@ public class GugelCarView extends JFrame {
      * @param y Posición y del agente
      * @param radar Percepción del radar
      */
-    public void updateMap(int x, int y, ArrayList<Integer> radar){
-        traceMap.updateMap(x, y, radar);
+    public void updateMap(int x, int y, ArrayList<Integer> radar, int ancho, int inicio){
+        traceMap.updateMap(x, y, radar, ancho, inicio);
     }
 
     /**
@@ -191,7 +187,7 @@ public class GugelCarView extends JFrame {
      */
     private void onEjecutar(){
         try {
-            superMente = new SuperMente(mapaSeleccionado, new AgentID(nombreAgente),this);
+            superMente = new SuperMente(mapaSeleccionado, new AgentID("Supermente"),this);
 
             System.out.println("\n\n-------------------------------\n");
 
