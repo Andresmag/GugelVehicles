@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Supermente, clase controladora de los vehículos zombies.
@@ -366,17 +367,63 @@ public class SuperMente extends SingleAgent {
      * @param vehiculo vehiculo para buscar su ruta al objetivo.
      *
      */
-    private ArrayList<String> encontrarRuta(int goalX, int goalY, EstadoVehiculo vehiculo){
-        ArrayList<String> acciones = new ArrayList();
+    private Queue<String> encontrarRuta(int goalX, int goalY, EstadoVehiculo vehiculo){
+        Queue<String> acciones = new LinkedList<String>();
         Point2D goal = new Point2D.Float(goalX,goalY);
 
         LinkedList<Point2D> abiertos = new LinkedList<Point2D>();
         LinkedList<Point2D> cerrados = new LinkedList<Point2D>();
 
-        abiertos.add(new Point2D.Float(vehiculo.coor_x, vehiculo.coor_y));
+        abiertos.add(new Point2D.Double(vehiculo.coor_x, vehiculo.coor_y));
 
+        boolean terminado = false;
+        Point2D actual;
+
+        while(!terminado){
+            actual = posCosteMasBajo(abiertos, goal);
+            cerrados.add(actual);
+            abiertos.remove(actual);
+        }
 
         return acciones;
+    }
+
+    /** Calcula la posición con menor valor heuristico de una lista
+     *
+     * @author Ángel Píñar Rivas, José Luis Martínez Ortiz
+     *
+     * @param listaPos Lista de posiciones sobre las que realizar la comprobación
+     * @param objetivo Objetivo al que se pretende ir
+     * @return La posición con menor valor heuristico
+     */
+    private Point2D posCosteMasBajo(LinkedList<Point2D> listaPos, Point2D objetivo){
+        double costeMinimo = Double.MAX_VALUE;
+        double coste;
+        Point2D pos_resultado = new Point2D.Double();
+        for(Point2D p: listaPos){
+            coste = calcularCostePos(p, objetivo);
+            if(coste < costeMinimo){
+                costeMinimo = coste;
+                pos_resultado = p;
+            }
+        }
+        return pos_resultado;
+    }
+
+    /** Calcula el valor/coste heuristico de una posicion en el mapa.
+     *
+     * @author José Luis Martínez Ortiz, Ángel Píñar Rivas
+     *
+     * @param posicion Posicion de la cual se quiere calcular el coste
+     * @param objetivo Objetivo al que se pretende ir
+     * @return El coste heuristico de la posicion.
+     */
+    private double calcularCostePos(Point2D posicion, Point2D objetivo){
+        double coste;
+
+        coste = posicion.distance(objetivo);
+
+        return coste;
     }
 
 

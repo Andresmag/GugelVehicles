@@ -63,11 +63,12 @@
       <file leaf-file-name="SuperMente.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/practica3/SuperMente.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="674">
-              <caret line="373" column="0" lean-forward="true" selection-start-line="373" selection-start-column="0" selection-end-line="373" selection-end-column="0" />
+            <state relative-caret-position="328">
+              <caret line="375" column="0" lean-forward="true" selection-start-line="375" selection-start-column="0" selection-end-line="375" selection-end-column="0" />
               <folding>
-                <element signature="e#12740#12749#0" expanded="true" />
-                <element signature="e#12806#12815#0" expanded="true" />
+                <element signature="e#12703#12711#0" expanded="true" />
+                <element signature="e#12824#12833#0" expanded="true" />
+                <element signature="e#12890#12899#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -240,7 +241,7 @@
       <workItem from="1513338559984" duration="1649000" />
       <workItem from="1514288360643" duration="4809000" />
       <workItem from="1514299726488" duration="7444000" />
-      <workItem from="1514560038852" duration="4825000" />
+      <workItem from="1514560038852" duration="6800000" />
     </task>
     <task id="LOCAL-00001" summary="Commit inicial con todo">
       <created>1512755436836</created>
@@ -298,11 +299,25 @@
       <option name="project" value="LOCAL" />
       <updated>1514562605107</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Hola he hecho cosas pero en verdad no">
+      <created>1514567082003</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1514567082003</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Ya compila, perdon">
+      <created>1514567368710</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1514567368710</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="19629000" />
+    <option name="totallyTimeSpent" value="21604000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -351,10 +366,14 @@
     <MESSAGE value="Implementados metodos de inicio y fin de sesiones" />
     <MESSAGE value="Actualizado javadoc" />
     <MESSAGE value="Comentarios en metodo explorarMapa. Qué es cada casilla al final de Mensajes.java" />
-    <option name="LAST_COMMIT_MESSAGE" value="Comentarios en metodo explorarMapa. Qué es cada casilla al final de Mensajes.java" />
+    <MESSAGE value="Hola he hecho cosas pero en verdad no" />
+    <MESSAGE value="Ya compila, perdon" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ya compila, perdon" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
@@ -408,8 +427,9 @@
         <state relative-caret-position="1649">
           <caret line="105" column="30" lean-forward="false" selection-start-line="105" selection-start-column="30" selection-end-line="105" selection-end-column="30" />
           <folding>
-            <element signature="e#12740#12749#0" expanded="true" />
-            <element signature="e#12806#12815#0" expanded="true" />
+            <element signature="e#12703#12711#0" expanded="true" />
+            <element signature="e#12824#12833#0" expanded="true" />
+            <element signature="e#12890#12899#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -456,8 +476,9 @@
         <state relative-caret-position="2108">
           <caret line="124" column="59" lean-forward="true" selection-start-line="124" selection-start-column="59" selection-end-line="124" selection-end-column="59" />
           <folding>
-            <element signature="e#12740#12749#0" expanded="true" />
-            <element signature="e#12806#12815#0" expanded="true" />
+            <element signature="e#12703#12711#0" expanded="true" />
+            <element signature="e#12824#12833#0" expanded="true" />
+            <element signature="e#12890#12899#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -604,11 +625,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/practica3/SuperMente.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="674">
-          <caret line="373" column="0" lean-forward="true" selection-start-line="373" selection-start-column="0" selection-end-line="373" selection-end-column="0" />
+        <state relative-caret-position="328">
+          <caret line="375" column="0" lean-forward="true" selection-start-line="375" selection-start-column="0" selection-end-line="375" selection-end-column="0" />
           <folding>
-            <element signature="e#12740#12749#0" expanded="true" />
-            <element signature="e#12806#12815#0" expanded="true" />
+            <element signature="e#12703#12711#0" expanded="true" />
+            <element signature="e#12824#12833#0" expanded="true" />
+            <element signature="e#12890#12899#0" expanded="true" />
           </folding>
         </state>
       </provider>
