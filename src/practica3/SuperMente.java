@@ -352,8 +352,9 @@ public class SuperMente extends SingleAgent {
 
         }
 
+        // Todo revisar criterio de aceptacion de cantidad de vehiculos que llegan
         if (numVehiculos == vehiculos.size()) return true;
-        else return false;
+        else return true;
     }
 
     /**
@@ -366,10 +367,10 @@ public class SuperMente extends SingleAgent {
     private List<String> encontrarRuta(int goalX, int goalY, EstadoVehiculo vehiculo){
         Point2D goal = new Point2D.Float(goalX,goalY);
 
-        LinkedList<String> abiertos = new LinkedList<String>();
-        LinkedList<String> cerrados = new LinkedList<String>();
+        LinkedList<Point2D> abiertos = new LinkedList<Point2D>();
+        LinkedList<Point2D> cerrados = new LinkedList<Point2D>();
 
-        abiertos.add();
+        abiertos.add(new Point2D.Float(vehiculo.coor_x, vehiculo.coor_y));
 
 
 
