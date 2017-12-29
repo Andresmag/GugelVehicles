@@ -75,3 +75,11 @@ public enum Mensajes {
     public static final int SUPERMENTE_STATUS_SUSCRIBIENDO_OBJ = 3;
     public static final int SUPERMENTE_STATUS_YENDO_OBJ = 4;
 }
+
+/**
+ 0 = celda libre
+ 1 = obstáculo
+ 2 = borde del mundo
+ 3 = el objetivo
+ 4 = otro vehiculo
+ */
