@@ -366,8 +366,8 @@ public class SuperMente extends SingleAgent {
     class Nodo{
         //TODO terminar de documentar.
         public Point2D.Double punto;
-        public double g_coste;
-        public double f_coste;
+        public double g_coste;  //coste real
+        public double f_coste;  //coste heuristico
         public String accion;
         public Nodo anterior;
 
@@ -393,9 +393,10 @@ public class SuperMente extends SingleAgent {
         // TODO Revisar que contains de LinkedList funciona con equals
         @Override
         public boolean equals(Object n){
+            boolean resultado = false;
             if(x() == ((Nodo) n).x() && y() == ((Nodo) n).y())
-                return true;
-            return false;
+                resultado = true;
+            return resultado;
         }
 
     }
@@ -479,7 +480,7 @@ public class SuperMente extends SingleAgent {
 
         }
 
-
+        // Si se devuelve este acciones (vacio) es que no hay solucion
         return acciones;
     }
 
