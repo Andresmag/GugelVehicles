@@ -336,7 +336,7 @@ public class SuperMente extends SingleAgent {
         int numVehiculos = 0;       // Numero de vehiculos que han alcanzado el objetivo
         boolean terminar = false;   // True si se ha alcanzado el objetivo o si se han quedado sin bateria
 
-        while (!terminar) {
+        while (!terminar) { // Creo que este bucle no hara falta
             /*
             Mover en cada paso cada vehiculo que no lo haya alcanzado hacia el objetivo, comprobar bateria, y
             comprobar si lo ha alcanzado despues. Contabilizarlo en ese caso en numVehiculos.
@@ -347,6 +347,27 @@ public class SuperMente extends SingleAgent {
              asumiendo que el 0,0 está en la esquina inferior izquierda. Los vehículos 3 y 4 tendrán como meta la periferia.
 
              */
+            // Declarar las 4 rutas
+            Stack<String> rutav1, rutav2, rutav3, rutav4;
+
+            // todo Ordenar vehiculos por gasto de bateria
+
+            // todo Escoger los goalX y goalY más cercano a cada vehiculo
+
+            int goalX1, goalX2, goalX3, goalX4, goalY1, goalY2, goalY3, goalY4;
+
+            // todo En caso de conflicto, el de menor combustible, si es igual, el primero del array ordenado,
+            // todo dará un paso mas para no quedarse en la periferia del objetivo
+
+            // todo En vez de vehiculos.get0 y tal, ordenar vehiculos por costo de combustible
+            rutav1 = encontrarRuta(goalX1, goalY1, vehiculos.get(0));
+            rutav2 = encontrarRuta(goalX2, goalY2, vehiculos.get(1));
+            rutav3 = encontrarRuta(goalX3, goalY3, vehiculos.get(2));
+            rutav4 = encontrarRuta(goalX4, goalY4, vehiculos.get(3));
+
+            // todo insertar en cada ruta la accion de la ultima recarga (el resto que las haga cuando las necesite)
+            
+            // todo lanzar movimiento de cada uno, tendra un metodo propio seguramente.
 
 
 
