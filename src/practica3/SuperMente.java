@@ -338,21 +338,11 @@ public class SuperMente extends SingleAgent {
         boolean terminar = false;   // True si se ha alcanzado el objetivo o si se han quedado sin bateria
 
         while (!terminar) { // Creo que este bucle no hara falta
-            /*
-            Mover en cada paso cada vehiculo que no lo haya alcanzado hacia el objetivo, comprobar bateria, y
-            comprobar si lo ha alcanzado despues. Contabilizarlo en ese caso en numVehiculos.
-             */
-            /*
-            Tenemos el perímetro del objetivo (borde superior, inferior, izquierdo, derecho), los dos primeros vehículos
-            realizarán el A* teniendo como meta el interior del objetivo (borde superior - 1, inferior +1, izq +1, der -1),
-             asumiendo que el 0,0 está en la esquina inferior izquierda. Los vehículos 3 y 4 tendrán como meta la periferia.
-
-             */
             // Declarar las 4 rutas
             Stack<String> rutav0, rutav1, rutav2, rutav3;
 
-            // todo Ordenar vehiculos por gasto de bateria, o mejor, dron>coche>camion
-            // todo Algoritmo de ordenado de mierda, no me apetece mucho pensar hoy
+            // todo Ordenar vehiculos por gasto de bateria, o mejor, dron>coche>camion DEBATIR SOBRE ESTO PLS
+            // todo Este es un algoritmo de ordenado de mierda, no me apetece mucho pensar hoy
             ArrayList<EstadoVehiculo> vordenados = new ArrayList();
             for (int i=0 ; i < vehiculos.size() ; i++){
                 if(vehiculos.get(i).tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_HELICOPTERO)){
@@ -373,7 +363,6 @@ public class SuperMente extends SingleAgent {
             }
 
             //Escoger los goalX y goalY más cercano a cada vehiculo
-
             int goalX[] = new int[4];
             int goalY[] = new int[4];
 
@@ -399,6 +388,11 @@ public class SuperMente extends SingleAgent {
             // En caso de conflicto, el de menor combustible, si es igual, el primero del array ordenado,
             // dará un paso mas para no quedarse en la periferia del objetivo
             //todo He rehecho esto de 4234 formas y tengo la cabeza como un bombo, revisadlo pls
+            /** /
+             La idea es: revisa los goals de los 4 coches en orden de menos consumo a mas.
+             Si encuentra que tienen el mismo goal, el de menos consumo se moverá a una casilla adyacente que sea objetivo
+             y que esté libre.
+             **/
             for (int i = 0; i < 4; i++) {
                 if(comprobarCoincidenciaObjetivo(i, goalX, goalY)){ // Si la casilla objetivo está ocupada por otro vehículo
                     // Iteramos sobre las casillas adyacentes
@@ -441,16 +435,31 @@ public class SuperMente extends SingleAgent {
      * @param vehiculo El vehiculo que deseamos mover
      */
     private void guiarVehiculo(Stack<String> ruta, EstadoVehiculo vehiculo){
-        //todo revisar si ruta.size da la cantidad de elementos dentro del stack o el tamaño del stack
-        // While(ruta.size*vehiclo.consumo > 100)
-            // Extraer movimiento de ruta
-            // Si necesita recargar, recarga
-            // Ejecutar movimiento ruta
+        //todo revisar si ruta.size da la cantidad de elementos dentro del stack o el tamaño del stack, no estoy seguro
+        //todo revisar las recogidas de percepcion
+        String nextMove;
+        // Va hacia el objetivo recargando cada vez que sea estrictamente necesario.
+        while(ruta.size()*vehiculo.consumo < 100){
+            if(vehiculo.battery <= vehiculo.consumo){
+                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
+                /*??*/ recogerPercepcion(vehiculo);
+            } else {
+                nextMove = ruta.pop();
+                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(nextMove), vehiculo.id);
+                recogerPercepcion(vehiculo); //??
+            }
+        }
 
-        // Recargar /* Última recarga, ya no necesitará más */
-        // While(!ruta.isEmpty())
-            // Extraer movimiento de ruta
-            // Ejecutar movimiento.
+        // Sale del while porque ya le va a costar menos de 100 de batería llegar al objetivo, así que recarga una última vez
+        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
+        /*??*/ recogerPercepcion(vehiculo);
+
+        // Realiza las acciones que le quedan sin recargar
+        while(!ruta.isEmpty()){
+            nextMove = ruta.pop();
+            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(nextMove), vehiculo.id);
+            recogerPercepcion(vehiculo); //??
+        }
     }
 
 
@@ -477,7 +486,7 @@ public class SuperMente extends SingleAgent {
     private boolean comprobarCoincidenciaObjetivo(int index, int goalX[], int goalY[]){
         boolean coincide = false;
 
-        for(int i=0 ; i<goalX.length ; i++){ //todo Asegurarse de que coge bien el length cuando pasas el array como parámetro
+        for(int i=0 ; i<goalX.length ; i++){ //todo Asegurarse de que coge bien el length cuando pasas el array como parámetro (o poner 4 y a pastar)
             if(i!=index){
                 if(goalX[i] == goalX[index] && goalY[i] == goalY[index]){
                     coincide = true;
@@ -663,6 +672,7 @@ public class SuperMente extends SingleAgent {
      * @param nodo nodo final de una ruta.
      * @return una secuencia de acciones para llegar al nodo.
      */
+    // todo Pone "recontruirRuta", deberia ser "reconSSSStruirRuta"
     private Stack<String> recontruirRuta(Nodo nodo){
         Stack<String> acciones = new Stack<String>();
 
