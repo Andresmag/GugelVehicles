@@ -120,6 +120,7 @@ public class SuperMente extends SingleAgent {
      *
      * @author Ángel Píñar Rivas, Jose Luis Martínez Ortiz, David Vargas Carrillo
      */
+
     @Override
     public void execute(){
         boolean finalizar = false;
@@ -348,34 +349,164 @@ public class SuperMente extends SingleAgent {
 
              */
             // Declarar las 4 rutas
-            Stack<String> rutav1, rutav2, rutav3, rutav4;
+            Stack<String> rutav0, rutav1, rutav2, rutav3;
 
-            // todo Ordenar vehiculos por gasto de bateria
+            // todo Ordenar vehiculos por gasto de bateria, o mejor, dron>coche>camion
+            // todo Algoritmo de ordenado de mierda, no me apetece mucho pensar hoy
+            ArrayList<EstadoVehiculo> vordenados = new ArrayList();
+            for (int i=0 ; i < vehiculos.size() ; i++){
+                if(vehiculos.get(i).tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_HELICOPTERO)){
+                    vordenados.add(vehiculos.get(i));
+                }
+            }
 
-            // todo Escoger los goalX y goalY más cercano a cada vehiculo
+            for (int i=0 ; i < vehiculos.size() ; i++){
+                if(vehiculos.get(i).tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_COCHE)){
+                    vordenados.add(vehiculos.get(i));
+                }
+            }
 
-            int goalX1, goalX2, goalX3, goalX4, goalY1, goalY2, goalY3, goalY4;
+            for (int i=0 ; i < vehiculos.size() ; i++){
+                if(vehiculos.get(i).tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_CAMION)){
+                    vordenados.add(vehiculos.get(i));
+                }
+            }
 
-            // todo En caso de conflicto, el de menor combustible, si es igual, el primero del array ordenado,
-            // todo dará un paso mas para no quedarse en la periferia del objetivo
+            //Escoger los goalX y goalY más cercano a cada vehiculo
 
-            // todo En vez de vehiculos.get0 y tal, ordenar vehiculos por costo de combustible
-            rutav1 = encontrarRuta(goalX1, goalY1, vehiculos.get(0));
-            rutav2 = encontrarRuta(goalX2, goalY2, vehiculos.get(1));
-            rutav3 = encontrarRuta(goalX3, goalY3, vehiculos.get(2));
-            rutav4 = encontrarRuta(goalX4, goalY4, vehiculos.get(3));
+            int goalX[] = new int[4];
+            int goalY[] = new int[4];
 
-            // todo insertar en cada ruta la accion de la ultima recarga (el resto que las haga cuando las necesite)
-            
-            // todo lanzar movimiento de cada uno, tendra un metodo propio seguramente.
+            for(int i=0 ; i<4 ; i++){
+                //todo Revisar: considero que el origen de coordenadas esta abajo a la izquierda
+                if(vehiculos.get(i).coor_x < goalLeft){
+                    goalX[i] = goalLeft;
+                } else if (vehiculos.get(i).coor_x > goalRight){
+                    goalX[i] = goalRight;
+                } else {
+                    goalX[i] = vehiculos.get(i).coor_x;
+                }
 
+                if(vehiculos.get(i).coor_y < goalBottom){
+                    goalY[i] = goalBottom;
+                } else if (vehiculos.get(i).coor_y > goalTop){
+                    goalY[i] = goalTop;
+                } else {
+                    goalY[i] = vehiculos.get(i).coor_y;
+                }
+            }
 
+            // En caso de conflicto, el de menor combustible, si es igual, el primero del array ordenado,
+            // dará un paso mas para no quedarse en la periferia del objetivo
+            //todo He rehecho esto de 4234 formas y tengo la cabeza como un bombo, revisadlo pls
+            for (int i = 0; i < 4; i++) {
+                if(comprobarCoincidenciaObjetivo(i, goalX, goalY)){ // Si la casilla objetivo está ocupada por otro vehículo
+                    // Iteramos sobre las casillas adyacentes
+                    for(int y=goalY[i]-1 ; y<=goalY[i]+1 ; y++){
+                        for(int x=goalX[i]-1 ; x<=goalX[i]+1 ; x++){
+                            if(!(y==goalY[i] && x==goalX[i])){ //exceptuando el centro
+                                if(esObjetivo(x,y) && !comprobarPosicionOcupada(x,y,goalX,goalY)){ //si es objetivo y no está ocupada
+                                    //Establecemos nuevo goal
+                                    goalX[i] = x;
+                                    goalY[i] = y;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
+            // Ahora que tenemos los objetivos, obtenemos secuencia y ejecutamos
+            // así, para que tengan en cuenta la posición de los vehiculos en el objetivo y no se choquen con ellos
+            rutav0 = encontrarRuta(goalX[0], goalY[0], vordenados.get(0));
+            guiarVehiculo(rutav0, vordenados.get(0));
+            rutav1 = encontrarRuta(goalX[1], goalY[1], vordenados.get(1));
+            guiarVehiculo(rutav1, vordenados.get(1));
+            rutav2 = encontrarRuta(goalX[2], goalY[2], vordenados.get(2));
+            guiarVehiculo(rutav2, vordenados.get(2));
+            rutav3 = encontrarRuta(goalX[3], goalY[3], vordenados.get(3));
+            guiarVehiculo(rutav3, vordenados.get(3));
         }
 
         // Todo revisar criterio de aceptacion de cantidad de vehiculos que llegan
         if (numVehiculos == vehiculos.size()) return true;
         else return true;
+    }
+
+
+    /**Ejecuta una serie de acciones para un vehículo. Se usa para guiarlo hasta el objetivo
+     *
+     * @author Ángel Píñar Rivas
+     * @param ruta Conjunto de movimientos que debe realizar para ir a un sitio
+     * @param vehiculo El vehiculo que deseamos mover
+     */
+    private void guiarVehiculo(Stack<String> ruta, EstadoVehiculo vehiculo){
+        //todo revisar si ruta.size da la cantidad de elementos dentro del stack o el tamaño del stack
+        // While(ruta.size*vehiclo.consumo > 100)
+            // Extraer movimiento de ruta
+            // Si necesita recargar, recarga
+            // Ejecutar movimiento ruta
+
+        // Recargar /* Última recarga, ya no necesitará más */
+        // While(!ruta.isEmpty())
+            // Extraer movimiento de ruta
+            // Ejecutar movimiento.
+    }
+
+
+    /** Comprueba si una posición es parte del objetivo
+     *
+     * @author Ángel Píñar Rivas
+     * @param x Coordenada X a comprobar
+     * @param y Coordenada Y a comprobar
+     * @return True si (x,y) es un objetivo
+     */
+    private boolean esObjetivo(int x, int y){
+        return mapaMundo[x][y] == 3;
+    }
+
+    /** En el contexto de posiciones objetivo de los vehiculos, donde el indice representa el vehiculo, comprueba
+     * si un vehiculo de indice index tiene la misma posicion objetivo que otro.
+     *
+     * @author Ángel Píñar Rivas
+     * @param index Indice del vehiculo del que se quiere buscar una coincidencia
+     * @param goalX Array de coordenadas objetivo X de todos los vehículos
+     * @param goalY Array de coordenadas objetivo Y de todos los vehículos
+     * @return True si hay coincidencia, false en caso contrario
+     */
+    private boolean comprobarCoincidenciaObjetivo(int index, int goalX[], int goalY[]){
+        boolean coincide = false;
+
+        for(int i=0 ; i<goalX.length ; i++){ //todo Asegurarse de que coge bien el length cuando pasas el array como parámetro
+            if(i!=index){
+                if(goalX[i] == goalX[index] && goalY[i] == goalY[index]){
+                    coincide = true;
+                }
+            }
+        }
+
+        return coincide;
+    }
+
+    /** Comprueba si una posicion X, Y se encuentra en los arrays de coordenadas X y coordenadas Y
+     *
+     * @author Ángel Píñar Rivas
+     * @param posX Coordenada de posición X que se quiere comprobar
+     * @param posY Coordenada de posición Y que se quiere comprobar
+     * @param goalX Array de coordenadas objetivo X de todos los vehículos
+     * @param goalY Array de coordenadas objetivo Y de todos los vehículos
+     * @return True si hay coincidencia, false en caso contrario
+     */
+    private boolean comprobarPosicionOcupada(int posX, int posY, int goalX[], int goalY[]){
+        boolean ocupada = false;
+
+        for(int i=0 ; i<goalX.length ; i++){ //todo Asegurarse de que coge bien el length cuando pasas el array como parámetro
+            if(posX == goalX[i] && posY == goalY[i]){
+                ocupada=true;
+            }
+        }
+
+        return ocupada;
     }
 
 
