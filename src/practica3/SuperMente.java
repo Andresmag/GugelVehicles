@@ -67,7 +67,7 @@ public class SuperMente extends SingleAgent {
      * Constructor
      * @author Diego Iáñez Ávila, Andrés Molina López
      */
-    public SuperMente(String map, AgentID aid, GugelCarView v) throws Exception {
+    public SuperMente(String map, AgentID aid,GugelCarView v) throws Exception {
         super(aid);
 
         mapa = map;
@@ -714,10 +714,21 @@ public class SuperMente extends SingleAgent {
         // Movimiento a la izquierda, hasta la columna 0
         while(dron.coor_x > 0) {
             if (dron.battery > dron.consumo) {
-                if(mapaMundo[dron.coor_y][dron.coor_x - 1] != 4)
+                if(mapaMundo[dron.coor_y][dron.coor_x - 1] != 4) { // Se comprueba que la casilla a la que nos vamos a mover no tenga un vehiculo
                     sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), dron.id);
-                else{
-                    // @todo Evitar los vehiculos que haya en el mapa bordeandolos en zigzag
+                    recogerPercepcion(dron);
+                }
+                else{   // En caso de que haya un vehiculo en la casilla lo que hacemos es esquivarlo en zigzag
+                    if (arriba) {  // Comprobamos si empieza arriba del mapa
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_SW), dron.id);
+                        recogerPercepcion(dron);
+                        if(!evitarVehiculo(dron, arriba, true)) return false;
+                    }
+                    else{
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_NW), dron.id);
+                        recogerPercepcion(dron);
+                        if(!evitarVehiculo(dron, arriba, true)) return false;
+                    }
                 }
                 if (!recogerPercepcion(dron)) return false;
             } else {
@@ -726,15 +737,33 @@ public class SuperMente extends SingleAgent {
             }
         }
         esquinasExploradas++;     // Se ha llegado a la esquina izquierda inferior o superior
+        System.out.println("Conseguido llegar a la primera esquina");
+        if (esquinasExploradas > 0){
+            return true;
+        }
 
         boolean mov_derecha = true;
         // Bucle de exploracion
         while (esquinasExploradas < 4) {
             if (mov_derecha) {
                 while(mapaMundo[dron.coor_y][dron.coor_x + 1] != 2) {
-                    if (dron.battery > 2) {
-                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_E), dron.id);
-                        recogerPercepcion(dron);
+                    if (dron.battery > dron.consumo) {
+                        if(mapaMundo[dron.coor_y][dron.coor_x+1] != 4) {    // Se comprueba que la casilla a la que nos vamos a mover no tenga un vehiculo
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_E), dron.id);
+                            recogerPercepcion(dron);
+                        }
+                        else{   // En caso de que haya un vehiculo en la casilla lo que hacemos es esquivarlo en zigzag
+                            if (arriba) {  // Comprobamos si empieza arriba del mapa
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_NE), dron.id);
+                                recogerPercepcion(dron);
+                                if(!evitarVehiculo(dron, !arriba, false)) return false; // Se manda el arriba al reves porque estamos en la fila opuesta a la que empezamos
+                            }
+                            else{
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_SE), dron.id);
+                                recogerPercepcion(dron);
+                                if(!evitarVehiculo(dron, !arriba, false)) return false; // Se manda el arriba al reves porque estamos en la fila opuesta a la que empezamos
+                            }
+                        }
                     } else {
                         sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
                         if (!recogerPercepcion(dron)) return false;
@@ -748,9 +777,23 @@ public class SuperMente extends SingleAgent {
             }
             else {
                 while(mapaMundo[dron.coor_y][dron.coor_x - 1] != 2) {
-                    if (dron.battery > 2) {
-                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), dron.id);
-                        recogerPercepcion(dron);
+                    if (dron.battery > dron.consumo) {
+                        if (mapaMundo[dron.coor_y][dron.coor_x-1] != 4) {   // Se comprueba que la casilla a la que nos vamos a mover no tenga un vehiculo
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), dron.id);
+                            recogerPercepcion(dron);
+                        }
+                        else{   // En caso de que haya un vehiculo en la casilla lo que hacemos es esquivarlo en zigzag
+                            if (arriba) {  // Comprobamos si empieza arriba del mapa
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_NW), dron.id);
+                                recogerPercepcion(dron);
+                                if(!evitarVehiculo(dron, !arriba, true)) return false; // Se manda el arriba al reves porque estamos en la fila opuesta a la que empezamos
+                            }
+                            else{
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_SW), dron.id);
+                                recogerPercepcion(dron);
+                                if(!evitarVehiculo(dron, !arriba, true)) return false; // Se manda el arriba al reves porque estamos en la fila opuesta a la que empezamos
+                            }
+                        }
                     } else {
                         sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
                         if (!recogerPercepcion(dron)) return false;
@@ -764,13 +807,14 @@ public class SuperMente extends SingleAgent {
             }
 
             if (esquinasExploradas < 4) {
+                boolean seguir_mov = true;
+                boolean esquivado_vehiculo = false;
+                int movs = 0;
                 if (arriba) {
                     // Moverse hacia abajo
-                    boolean seguir_mov = true;
-                    int movs = 0;
                     do {
-                        if (mapaMundo[dron.coor_y + 1][dron.coor_x] != 2) {
-                            if (dron.battery > 2) {
+                        if (mapaMundo[dron.coor_y + 1][dron.coor_x] != 2 && mapaMundo[dron.coor_y + 1][dron.coor_x] != 4) {
+                            if (dron.battery > dron.consumo) {
                                 sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_S), dron.id);
                                 recogerPercepcion(dron);
                                 movs++;
@@ -778,21 +822,36 @@ public class SuperMente extends SingleAgent {
                                 sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
                                 if (!recogerPercepcion(dron)) return false;
                             }
-                        } else
+                        }
+                        else if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 4){
+                            if (dron.battery > dron.consumo) {
+                                if (mov_derecha)
+                                    sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_SW), dron.id);
+                                else
+                                    sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_SE), dron.id);
+
+                                recogerPercepcion(dron);
+                                movs++;
+                                seguir_mov = false;
+                                esquivado_vehiculo = true;
+                            } else {
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
+                                if (!recogerPercepcion(dron)) return false;
+                            }
+                        }
+                        else if(mapaMundo[dron.coor_y + 1][dron.coor_x] == 2)
                             seguir_mov = false;
                     } while (seguir_mov && movs < 3);
 
                     // Se comprueba si estamos en una esquina
-                    if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2) {
+                    if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2 || esquivado_vehiculo) { // Si hemos esquivado un vehiculo mientras bajabamos es que estaba situado en una extremo
                         esquinasExploradas++;
                     }
                 } else {
                     // Moverse hacia arriba
-                    boolean seguir_mov = true;
-                    int movs = 0;
                     do {
-                        if (mapaMundo[dron.coor_y - 1][dron.coor_x] != 2) {
-                            if (dron.battery > 2) {
+                        if (mapaMundo[dron.coor_y - 1][dron.coor_x] != 2 && mapaMundo[dron.coor_y - 1][dron.coor_x] != 4) {
+                            if (dron.battery > dron.consumo) {
                                 sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_N), dron.id);
                                 recogerPercepcion(dron);
                                 movs++;
@@ -800,18 +859,226 @@ public class SuperMente extends SingleAgent {
                                 sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
                                 if (!recogerPercepcion(dron)) return false;
                             }
-                        } else
+                        }
+                        else if (mapaMundo[dron.coor_y - 1][dron.coor_x] == 4){
+                            if (dron.battery > dron.consumo) {
+                                if (mov_derecha)
+                                    sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_NW), dron.id);
+                                else
+                                    sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_NE), dron.id);
+
+                                recogerPercepcion(dron);
+                                movs++;
+                                seguir_mov = false;
+                                esquivado_vehiculo = true;
+                            } else {
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
+                                if (!recogerPercepcion(dron)) return false;
+                            }
+                        }
+                        else if(mapaMundo[dron.coor_y - 1][dron.coor_x] == 2)
                             seguir_mov = false;
                     } while (seguir_mov && movs < 3);
 
                     // Se comprueba si estamos en una esquina
-                    if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2) {
+                    if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2 || esquivado_vehiculo) { // Si hemos esquivado un vehiculo mientras subiamos es que estaba situado en una extremo
                         esquinasExploradas++;
                     }
                 }
             }
         }
         return true;
+    }
+
+    /**
+     * Metodo para bordear a los vehiculos haciendo zigzag
+     *
+     * @author Andrés Molina López
+     * @param vehiculo datos del vehículo que se está moviendo
+     * @param posicion_inicial si el vehículo ha aparecido en la fila de arriba o de abajo del mapa
+     * @param mov_izquierda si el vehiculo se está moviendo a la izquierda o a la derecha
+     * @return si se ha conseguido bordear con exito al otro vehiculo o no
+     */
+    private boolean evitarVehiculo(EstadoVehiculo vehiculo, boolean posicion_inicial, boolean mov_izquierda){
+        boolean exito = false;
+        if (posicion_inicial && mov_izquierda){
+            switch (mapaMundo[vehiculo.coor_y-1][vehiculo.coor_x-1]){
+                case 2:
+                    exito = true; // El coche a bordear estaba en la posicion limite del mapa
+                    break;
+                case 4:
+                    if (mapaMundo[vehiculo.coor_y][vehiculo.coor_x-1] == 2){
+                        exito = true; // habia dos coches consecutivos puestos al lado del borde
+                    }
+                    else{
+                        if (vehiculo.battery > vehiculo.consumo){
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), vehiculo.id);
+                            recogerPercepcion(vehiculo);
+                            if(evitarVehiculo(vehiculo, posicion_inicial, mov_izquierda))
+                                exito = true;
+                        }
+                        else{
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
+                            if(recogerPercepcion(vehiculo)){ // si tiene gasolina completa el bordeo
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), vehiculo.id);
+                                recogerPercepcion(vehiculo);
+                                if (evitarVehiculo(vehiculo, posicion_inicial, mov_izquierda))
+                                    exito = true;
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    if (vehiculo.battery > vehiculo.consumo){
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_NW), vehiculo.id);
+                        recogerPercepcion(vehiculo);
+                        exito = true;
+                    }
+                    else{
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
+                        if(recogerPercepcion(vehiculo)){ // si tiene gasolina completa el bordeo
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_NW), vehiculo.id);
+                            recogerPercepcion(vehiculo);
+                            exito = true;
+                        }
+                    }
+                    break;
+            }
+        }
+        else if(posicion_inicial && !mov_izquierda){
+            switch (mapaMundo[vehiculo.coor_y-1][vehiculo.coor_x+1]){
+                case 2:
+                    exito = true; // El coche a bordear estaba en la posicion limite del mapa
+                    break;
+                case 4:
+                    if (mapaMundo[vehiculo.coor_y][vehiculo.coor_x+1] == 2){
+                        exito = true; // habia dos coches consecutivos puestos al lado del borde
+                    }
+                    else{
+                        if (vehiculo.battery > vehiculo.consumo){
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_E), vehiculo.id);
+                            recogerPercepcion(vehiculo);
+                            if(evitarVehiculo(vehiculo, posicion_inicial, mov_izquierda))
+                                exito = true;
+                        }
+                        else{
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
+                            if(recogerPercepcion(vehiculo)){ // si tiene gasolina completa el bordeo
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_E), vehiculo.id);
+                                recogerPercepcion(vehiculo);
+                                if (evitarVehiculo(vehiculo, posicion_inicial, mov_izquierda))
+                                    exito = true;
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    if (vehiculo.battery > vehiculo.consumo){
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_NE), vehiculo.id);
+                        recogerPercepcion(vehiculo);
+                        exito = true;
+                    }
+                    else{
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
+                        if(recogerPercepcion(vehiculo)){ // si tiene gasolina completa el bordeo
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_NE), vehiculo.id);
+                            recogerPercepcion(vehiculo);
+                            exito = true;
+                        }
+                    }
+                    break;
+            }
+        }
+        else if(!posicion_inicial && mov_izquierda){
+            switch (mapaMundo[vehiculo.coor_y+1][vehiculo.coor_x-1]){
+                case 2:
+                    exito = true; // El coche a bordear estaba en la posicion limite del mapa
+                    break;
+                case 4:
+                    if (mapaMundo[vehiculo.coor_y][vehiculo.coor_x-1] == 2){
+                        exito = true; // habia dos coches consecutivos puestos al lado del borde
+                    }
+                    else{
+                        if (vehiculo.battery > vehiculo.consumo){
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), vehiculo.id);
+                            recogerPercepcion(vehiculo);
+                            if(evitarVehiculo(vehiculo, posicion_inicial, mov_izquierda))
+                                exito = true;
+                        }
+                        else{
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
+                            if(recogerPercepcion(vehiculo)){ // si tiene gasolina completa el bordeo
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), vehiculo.id);
+                                recogerPercepcion(vehiculo);
+                                if (evitarVehiculo(vehiculo, posicion_inicial, mov_izquierda))
+                                    exito = true;
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    if (vehiculo.battery > vehiculo.consumo){
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_SW), vehiculo.id);
+                        recogerPercepcion(vehiculo);
+                        exito = true;
+                    }
+                    else{
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
+                        if(recogerPercepcion(vehiculo)){ // si tiene gasolina completa el bordeo
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_SW), vehiculo.id);
+                            recogerPercepcion(vehiculo);
+                            exito = true;
+                        }
+                    }
+                    break;
+            }
+        }
+        else if(!posicion_inicial && !mov_izquierda){
+            switch (mapaMundo[vehiculo.coor_y+1][vehiculo.coor_x+1]){
+                case 2:
+                    exito = true; // El coche a bordear estaba en la posicion limite del mapa
+                    break;
+                case 4:
+                    if (mapaMundo[vehiculo.coor_y][vehiculo.coor_x+1] == 2){
+                        exito = true; // habia dos coches consecutivos puestos al lado del borde
+                    }
+                    else{
+                        if (vehiculo.battery > vehiculo.consumo){
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_E), vehiculo.id);
+                            recogerPercepcion(vehiculo);
+                            if(evitarVehiculo(vehiculo, posicion_inicial, mov_izquierda))
+                                exito = true;
+                        }
+                        else{
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
+                            if(recogerPercepcion(vehiculo)){ // si tiene gasolina completa el bordeo
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_E), vehiculo.id);
+                                recogerPercepcion(vehiculo);
+                                if (evitarVehiculo(vehiculo, posicion_inicial, mov_izquierda))
+                                    exito = true;
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    if (vehiculo.battery > vehiculo.consumo){
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_SE), vehiculo.id);
+                        recogerPercepcion(vehiculo);
+                        exito = true;
+                    }
+                    else{
+                        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
+                        if(recogerPercepcion(vehiculo)){ // si tiene gasolina completa el bordeo
+                            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_SE), vehiculo.id);
+                            recogerPercepcion(vehiculo);
+                            exito = true;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        return exito;
     }
 
     /**
