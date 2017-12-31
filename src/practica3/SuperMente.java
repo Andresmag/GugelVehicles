@@ -701,22 +701,19 @@ public class SuperMente extends SingleAgent {
         for (EstadoVehiculo vehiculo : vehiculos) {
             if (vehiculo.tipoVehiculo == TipoVehiculo.DRON)
                 dron = vehiculo;
+
+            // Obtenemos la percepción de todos los vehiculos
+            sendMessageVehiculo(ACLMessage.QUERY_REF, jsonComando("percepcion"), vehiculo.id);
+            recogerPercepcion(vehiculo);
         }
 
-        // Obtencion de la percepcion
-        // todo Obtener inicialmente la percepcion de los 4 vehiculos
-        sendMessageVehiculo(ACLMessage.QUERY_REF, jsonComando("percepcion"), dron.id);
-        recogerPercepcion(dron);
-
         // Determinación de la posicion inicial en el mapa
-        // todo Este if nunca se va a cumplir (creo). en los bordes del mapa hay una casilla de borde del mundo (2)
         if (dron.coor_y == 0)
             arriba = true;        // Empezamos en la parte superior, de otro modo, en la inferior
 
         // Movimiento a la izquierda, hasta la columna 0
-        // todo Lo mismo que el anterior, aqui se va a mover hasta que se estrelle con el borde del mundo (creo)
         while(dron.coor_x > 0) {
-            if (dron.battery > 2) {
+            if (dron.battery > dron.consumo) {
                 if(mapaMundo[dron.coor_y][dron.coor_x - 1] != 4)
                     sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), dron.id);
                 else{
@@ -744,8 +741,7 @@ public class SuperMente extends SingleAgent {
                     }
                 }
                 // Se comprueba si estamos en una esquina
-                // todo En este if entra aunque no vea una esquina, con tener borde del mundo por arriba o por abajo ya da por sentado que es una esquina
-                if ((mapaMundo[dron.coor_y - 1][dron.coor_x] == 2) || (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2)) {
+                if ((mapaMundo[dron.coor_y - 1][dron.coor_x] == 2) && (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2)) {
                     esquinasExploradas++;
                 }
                 mov_derecha = false;
@@ -761,7 +757,7 @@ public class SuperMente extends SingleAgent {
                     }
                 }
                 // Se comprueba si estamos en una esquina
-                if ((mapaMundo[dron.coor_y - 1][dron.coor_x] == 2) || (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2)) { // todo Lo mismo que en el caso anterior
+                if ((mapaMundo[dron.coor_y - 1][dron.coor_x] == 2) && (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2)) {
                     esquinasExploradas++;
                 }
                 mov_derecha = true;
@@ -787,7 +783,7 @@ public class SuperMente extends SingleAgent {
                     } while (seguir_mov && movs < 3);
 
                     // Se comprueba si estamos en una esquina
-                    if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2) { // todo Lo mismo, asi no se comprueba que sea una esquina
+                    if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2) {
                         esquinasExploradas++;
                     }
                 } else {
@@ -809,7 +805,7 @@ public class SuperMente extends SingleAgent {
                     } while (seguir_mov && movs < 3);
 
                     // Se comprueba si estamos en una esquina
-                    if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2) { // todo Asi no se comprueba que sea una esquina
+                    if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2) {
                         esquinasExploradas++;
                     }
                 }
