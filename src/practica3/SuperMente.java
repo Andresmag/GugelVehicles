@@ -520,50 +520,6 @@ public class SuperMente extends SingleAgent {
 
 
     /**
-     * Clase para contener la información de cada celda de la matriz del mapa.
-     *
-     * @author Jose Luis Martínez Ortiz
-     */
-    class Nodo{
-        //TODO terminar de documentar.
-        public Point2D.Double punto;
-        public double g_coste;  //coste real
-        public double f_coste;  //coste heuristico
-        public String accion;
-        public Nodo anterior;
-
-        public Nodo(Point2D.Double punto, double g_coste, Point2D.Double goal, String accion, Nodo anterior) {
-            this.punto = punto;
-            this.g_coste = g_coste;
-            this.f_coste = punto.distance(goal) + g_coste;
-            this.accion = accion;
-            this.anterior = anterior;
-        }
-
-        public Nodo() {
-
-        }
-
-        public double x(){
-            return punto.getX();
-        }
-        public double y(){
-            return punto.getY();
-        }
-
-        // TODO Revisar que contains de LinkedList funciona con equals
-        @Override
-        public boolean equals(Object n){
-            boolean resultado = false;
-            if(x() == ((Nodo) n).x() && y() == ((Nodo) n).y())
-                resultado = true;
-            return resultado;
-        }
-
-    }
-
-
-    /**
      * @author Ángel Píñar Rivas, Jose Luis Martínez Ortiz
      * @param goalX Coordenada X del objetivo.
      * @param goalY Coordenada y del objetivo.
