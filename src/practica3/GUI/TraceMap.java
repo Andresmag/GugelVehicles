@@ -72,8 +72,6 @@ public class TraceMap extends JPanel {
     }
 
     private void repaintMap(){
-        System.out.println("Repintando mapa....................................................................................");
-        System.out.println("x " + agentX + " y " + agentY + " ancho " + ancho + " inicio " + inicio);
         if (radar != null){
             int x = agentX - inicio;
             int y = agentY - inicio;
