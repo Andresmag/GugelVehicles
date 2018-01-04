@@ -82,33 +82,29 @@ public class TraceMap extends JPanel {
                 for (int j = 0; j < ancho; ++j){
                     value = radar.get(i * ancho + j);
 
-                    if (i == ancho/2+1 && j == ancho/2+1) {
-                        color = Color.GREEN;
-                    } else {
-                        switch (value) {
-                            case 0:
-                                color = Color.WHITE;
-                                break;
+                    switch (value) {
+                        case 0:
+                            color = Color.WHITE;
+                            break;
 
-                            case 1:
-                                color = Color.BLACK;
-                                break;
+                        case 1:
+                            color = Color.BLACK;
+                            break;
 
-                            case 2:
-                                color = Color.DARK_GRAY;
-                                break;
+                        case 2:
+                            color = Color.DARK_GRAY;
+                            break;
 
-                            case 3:
-                                color = Color.RED;
-                                break;
+                        case 3:
+                            color = Color.RED;
+                            break;
 
-                            case 4:
-                                color = Color.YELLOW;
-                                break;
+                        case 4:
+                            color = Color.YELLOW;
+                            break;
 
-                            default:
-                                color = Color.BLUE;
-                        }
+                        default:
+                            color = Color.BLUE;
                     }
 
                     imageGraphics.setColor(color);

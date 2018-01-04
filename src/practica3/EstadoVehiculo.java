@@ -12,7 +12,7 @@ public class EstadoVehiculo {
     public int coor_x,coor_y;
     public boolean objetivoAlcanzado;
     public int battery;
-    public TipoVehiculo tipoVehiculo;
+    private TipoVehiculo tipoVehiculo;
     public int consumo;
 
     public EstadoVehiculo(AgentID id) {
@@ -25,8 +25,8 @@ public class EstadoVehiculo {
         this.tipoVehiculo = tipoVehiculo;
 
         switch (tipoVehiculo){
-            case DRON: consumo = 1;break;
-            case COCHE: consumo = 2;break;
+            case DRON: consumo = 2;break;
+            case COCHE: consumo = 1;break;
             case CAMION: consumo = 4;break;
         }
     }
@@ -39,8 +39,22 @@ public class EstadoVehiculo {
         this.battery = battery;
         this.tipoVehiculo = tipoVehiculo;
         switch (tipoVehiculo){
-            case DRON: consumo = 1;break;
-            case COCHE: consumo = 2;break;
+            case DRON: consumo = 2;break;
+            case COCHE: consumo = 1;break;
+            case CAMION: consumo = 4;break;
+        }
+    }
+
+    public TipoVehiculo getTipoVehiculo() {
+        return tipoVehiculo;
+    }
+
+    public void setTipoVehiculo(TipoVehiculo tipoVehiculo) {
+        this.tipoVehiculo = tipoVehiculo;
+
+        switch (tipoVehiculo){
+            case DRON: consumo = 2;break;
+            case COCHE: consumo = 1;break;
             case CAMION: consumo = 4;break;
         }
     }

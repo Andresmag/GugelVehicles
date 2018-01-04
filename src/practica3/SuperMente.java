@@ -85,6 +85,8 @@ public class SuperMente extends SingleAgent {
     public void init(){
         /*FUTURO INIT*/
 
+        System.out.println("Iniciando...");
+
         // Inicializar algunas estructuras
         vehiculos = new ArrayList<>();
 
@@ -92,7 +94,9 @@ public class SuperMente extends SingleAgent {
             vehiculos.add(new EstadoVehiculo(new AgentID("coche" + i)));
         }
 
-        // reiniciarSesion();
+        System.out.println("Iniciado");
+
+         reiniciarSesion();
 
         /*INIT DEPRECATED, ACTUALMENTE PARA PRUEBAS* /
         JsonObject jsonLogin = Json.object();
@@ -140,7 +144,7 @@ public class SuperMente extends SingleAgent {
                         registrarVehiculo(vehiculo);
 
                         //Cuando tengamos el drón
-                        if (vehiculo.tipoVehiculo == TipoVehiculo.DRON){
+                        if (vehiculo.getTipoVehiculo() == TipoVehiculo.DRON){
                             tenemos_dron = true;
                             // dejamos de registrar más vehículos si vamos a explorar
                             //if(!exploracionFinalizada)
@@ -163,12 +167,14 @@ public class SuperMente extends SingleAgent {
                 case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
                     exploracionFinalizada = explorarMapa();
 
+                    System.out.println("Fin explorar mapa");
+
                     //Cuando termino de explorar vuelvo a empezar según la exploración
                     if(exploracionFinalizada){
-                        finalizarSesion();
+                        reiniciarSesion();
                     } else{
                         System.out.println("No se ha podido explorar el mapa completo");
-                        finalizarSesion();
+                        reiniciarSesion();
                     }
                     //reiniciarSesion();
                     status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
@@ -242,7 +248,7 @@ public class SuperMente extends SingleAgent {
                 String nombre = "traza_" + conversationID + "_vehiculos_";
 
                 for (EstadoVehiculo vehiculo : vehiculos){
-                    switch (vehiculo.tipoVehiculo){
+                    switch (vehiculo.getTipoVehiculo()){
                         case DRON:
                             nombre += "dron_";
                             break;
@@ -304,13 +310,13 @@ public class SuperMente extends SingleAgent {
         String tipoVehiculo = inbox.getContent();
 
         if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_HELICOPTERO)){
-            vehiculo.tipoVehiculo = TipoVehiculo.DRON;
+            vehiculo.setTipoVehiculo(TipoVehiculo.DRON);
         }
         else if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_CAMION)){
-            vehiculo.tipoVehiculo = TipoVehiculo.CAMION;
+            vehiculo.setTipoVehiculo(TipoVehiculo.CAMION);
         }
         else if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_COCHE)){
-            vehiculo.tipoVehiculo = TipoVehiculo.COCHE;
+            vehiculo.setTipoVehiculo(TipoVehiculo.COCHE);
         }
 
         System.out.println("Vehículo registrado.");
@@ -345,19 +351,19 @@ public class SuperMente extends SingleAgent {
             // todo Este es un algoritmo de ordenado de mierda, no me apetece mucho pensar hoy
             ArrayList<EstadoVehiculo> vordenados = new ArrayList();
             for (int i=0 ; i < vehiculos.size() ; i++){
-                if(vehiculos.get(i).tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_HELICOPTERO)){
+                if(vehiculos.get(i).getTipoVehiculo().equals(Mensajes.VEHICLE_TYPE_HELICOPTERO)){
                     vordenados.add(vehiculos.get(i));
                 }
             }
 
             for (int i=0 ; i < vehiculos.size() ; i++){
-                if(vehiculos.get(i).tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_COCHE)){
+                if(vehiculos.get(i).getTipoVehiculo().equals(Mensajes.VEHICLE_TYPE_COCHE)){
                     vordenados.add(vehiculos.get(i));
                 }
             }
 
             for (int i=0 ; i < vehiculos.size() ; i++){
-                if(vehiculos.get(i).tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_CAMION)){
+                if(vehiculos.get(i).getTipoVehiculo().equals(Mensajes.VEHICLE_TYPE_CAMION)){
                     vordenados.add(vehiculos.get(i));
                 }
             }
@@ -471,7 +477,7 @@ public class SuperMente extends SingleAgent {
      * @return True si (x,y) es un objetivo
      */
     private boolean esObjetivo(int x, int y){
-        return mapaMundo[x][y] == 3;
+        return mapaMundo[y][x] == 3;
     }
 
     /** En el contexto de posiciones objetivo de los vehiculos, donde el indice representa el vehiculo, comprueba
@@ -588,8 +594,8 @@ public class SuperMente extends SingleAgent {
 
             for (Nodo nodoVecino:nodosVecinos) {
                 if(!cerrados.contains(nodoVecino) &&
-                        mapaMundo[(int)nodoVecino.x()][(int)nodoVecino.y()] != 2 &&
-                        mapaMundo[(int)nodoVecino.x()][(int)nodoVecino.y()] != 4){
+                        mapaMundo[(int)nodoVecino.y()][(int)nodoVecino.x()] != 2 &&
+                        mapaMundo[(int)nodoVecino.y()][(int)nodoVecino.x()] != 4){
                     abiertos.add(nodoVecino);
                 }
 
@@ -655,7 +661,7 @@ public class SuperMente extends SingleAgent {
 
         // Obtencion del estado del dron
         for (EstadoVehiculo vehiculo : vehiculos) {
-            if (vehiculo.tipoVehiculo == TipoVehiculo.DRON)
+            if (vehiculo.getTipoVehiculo() == TipoVehiculo.DRON)
                 dron = vehiculo;
 
             // Obtenemos la percepción de todos los vehiculos
@@ -686,7 +692,7 @@ public class SuperMente extends SingleAgent {
                         if(!evitarVehiculo(dron, arriba, true)) return false;
                     }
                 }
-                if (!recogerPercepcion(dron)) return false;
+                //if (!recogerPercepcion(dron)) return false;
             } else {
                 sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), dron.id);
                 if (!recogerPercepcion(dron)) return false;
@@ -694,9 +700,6 @@ public class SuperMente extends SingleAgent {
         }
         esquinasExploradas++;     // Se ha llegado a la esquina izquierda inferior o superior
         System.out.println("Conseguido llegar a la primera esquina");
-        if (esquinasExploradas > 0){
-            return true;
-        }
 
         boolean mov_derecha = true;
         // Bucle de exploracion
@@ -710,14 +713,14 @@ public class SuperMente extends SingleAgent {
                         }
                         else{   // En caso de que haya un vehiculo en la casilla lo que hacemos es esquivarlo en zigzag
                             if (arriba) {  // Comprobamos si empieza arriba del mapa
-                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_NE), dron.id);
-                                recogerPercepcion(dron);
-                                if(!evitarVehiculo(dron, !arriba, false)) return false; // Se manda el arriba al reves porque estamos en la fila opuesta a la que empezamos
-                            }
-                            else{
                                 sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_SE), dron.id);
                                 recogerPercepcion(dron);
-                                if(!evitarVehiculo(dron, !arriba, false)) return false; // Se manda el arriba al reves porque estamos en la fila opuesta a la que empezamos
+                                if(!evitarVehiculo(dron, arriba, false)) return false; // Se manda el arriba al reves porque estamos en la fila opuesta a la que empezamos
+                            }
+                            else{
+                                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_NE), dron.id);
+                                recogerPercepcion(dron);
+                                if(!evitarVehiculo(dron, arriba, false)) return false; // Se manda el arriba al reves porque estamos en la fila opuesta a la que empezamos
                             }
                         }
                     } else {
@@ -726,13 +729,13 @@ public class SuperMente extends SingleAgent {
                     }
                 }
                 // Se comprueba si estamos en una esquina
-                if ((mapaMundo[dron.coor_y - 1][dron.coor_x] == 2) && (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2)) {
+                if ((dron.coor_y == 0 || mapaMundo[dron.coor_y - 1][dron.coor_x] == 2) && (mapaMundo[dron.coor_y][dron.coor_x + 1] == 2)) {
                     esquinasExploradas++;
                 }
                 mov_derecha = false;
             }
             else {
-                while(mapaMundo[dron.coor_y][dron.coor_x - 1] != 2) {
+                while(dron.coor_x != 0 && mapaMundo[dron.coor_y][dron.coor_x - 1] != 2) {
                     if (dron.battery > dron.consumo) {
                         if (mapaMundo[dron.coor_y][dron.coor_x-1] != 4) {   // Se comprueba que la casilla a la que nos vamos a mover no tenga un vehiculo
                             sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_MV_W), dron.id);
@@ -756,7 +759,7 @@ public class SuperMente extends SingleAgent {
                     }
                 }
                 // Se comprueba si estamos en una esquina
-                if ((mapaMundo[dron.coor_y - 1][dron.coor_x] == 2) && (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2)) {
+                if ((dron.coor_y == 0 || mapaMundo[dron.coor_y - 1][dron.coor_x] == 2) && (dron.coor_x == 0 || mapaMundo[dron.coor_y][dron.coor_x - 1] == 2)) {
                     esquinasExploradas++;
                 }
                 mov_derecha = true;
@@ -837,7 +840,7 @@ public class SuperMente extends SingleAgent {
                     } while (seguir_mov && movs < 3);
 
                     // Se comprueba si estamos en una esquina
-                    if (mapaMundo[dron.coor_y + 1][dron.coor_x] == 2 || esquivado_vehiculo) { // Si hemos esquivado un vehiculo mientras subiamos es que estaba situado en una extremo
+                    if (dron.coor_y == 0 || mapaMundo[dron.coor_y - 1][dron.coor_x] == 2 || esquivado_vehiculo) { // Si hemos esquivado un vehiculo mientras subiamos es que estaba situado en una extremo
                         esquinasExploradas++;
                     }
                 }
@@ -856,6 +859,8 @@ public class SuperMente extends SingleAgent {
      * @return si se ha conseguido bordear con exito al otro vehiculo o no
      */
     private boolean evitarVehiculo(EstadoVehiculo vehiculo, boolean posicion_inicial, boolean mov_izquierda){
+        System.out.println("Intentando esquivar vehículo");
+
         boolean exito = false;
         if (posicion_inicial && mov_izquierda){
             switch (mapaMundo[vehiculo.coor_y-1][vehiculo.coor_x-1]){
@@ -1045,6 +1050,7 @@ public class SuperMente extends SingleAgent {
      * @return si el estado del vehiculo ha sido actualizado
      */
     private boolean recogerPercepcion(EstadoVehiculo vehiculo) {
+        System.out.println("Recogiendo percepción");
         boolean actualizado = true;
 
         // Recibir percepción
@@ -1057,6 +1063,8 @@ public class SuperMente extends SingleAgent {
             actualizado = false;
         }
 
+        System.out.println("Percepción recogida y procesada");
+
         return actualizado;
     }
 
@@ -1065,6 +1073,7 @@ public class SuperMente extends SingleAgent {
      * @author Diego Iáñez Ávila
      */
     private void procesarPercepcion(EstadoVehiculo vehiculo, String jsonPercepcion){
+        System.out.println("Procesando percepción");
         JsonObject percepcion = Json.parse(jsonPercepcion).asObject();
         JsonObject resultado = percepcion.get(Mensajes.AGENT_COM_RESULT).asObject();
 
@@ -1080,7 +1089,7 @@ public class SuperMente extends SingleAgent {
 
         int inicio = 0, ancho = 0;
 
-        switch (vehiculo.tipoVehiculo){
+        switch (vehiculo.getTipoVehiculo()){
             case DRON:
                 inicio = 1;
                 ancho = 3;
@@ -1111,7 +1120,7 @@ public class SuperMente extends SingleAgent {
                 radar.add(sensor.get(fila*ancho + columna).asInt());
 
                 if (xmapa >= 0 && ymapa >= 0){
-                    mapaMundo[xmapa][ymapa] = sensor.get(fila * ancho + columna).asInt();
+                    mapaMundo[ymapa][xmapa] = sensor.get(fila * ancho + columna).asInt();
                 }
             }
         }
