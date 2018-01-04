@@ -9,6 +9,7 @@ import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import org.codehaus.jettison.json.JSONObject;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import practica3.GUI.GugelCarView;
 
 import javax.swing.*;
@@ -74,6 +75,10 @@ public class SuperMente extends SingleAgent {
         controllerID = new AgentID("Girtab");
         view = v;
         status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
+        goalLeft = 1000;
+        goalRight = 0;
+        goalTop = 1000;
+        goalBottom = 0;
     }
 
     /**
@@ -96,27 +101,7 @@ public class SuperMente extends SingleAgent {
 
         System.out.println("Iniciado");
 
-         reiniciarSesion();
-
-        /*INIT DEPRECATED, ACTUALMENTE PARA PRUEBAS* /
-        JsonObject jsonLogin = Json.object();
-        jsonLogin.add(Mensajes.AGENT_COM_WORLD, mapa);
-
-        sendMessageController(ACLMessage.SUBSCRIBE, jsonLogin.toString());
-
-        // Recibir y guardar el conversation-ID
-        ACLMessage answer = receiveMessage();
-
-        if (answer.getPerformativeInt() == ACLMessage.INFORM){
-            conversationID = answer.getConversationId();
-            System.out.println(conversationID);
-        }
-        else{
-            System.out.println(answer.getContent().toString());
-        }
-
-        sendMessageController(ACLMessage.CANCEL, "");
-        /**/
+        reiniciarSesion();
     }
 
     /**
@@ -143,12 +128,9 @@ public class SuperMente extends SingleAgent {
                     for(EstadoVehiculo vehiculo: vehiculos){
                         registrarVehiculo(vehiculo);
 
-                        //Cuando tengamos el drón
                         if (vehiculo.getTipoVehiculo() == TipoVehiculo.DRON){
                             tenemos_dron = true;
-                            // dejamos de registrar más vehículos si vamos a explorar
-                            //if(!exploracionFinalizada)
-                            //    break;
+
                         }
                     }
 
@@ -195,6 +177,7 @@ public class SuperMente extends SingleAgent {
         }
         finalizarSesion();
     }
+
 
     /** Manda un cancel al controlador para así poder iniciar una nueva sesión posteriormente
      *
@@ -340,97 +323,93 @@ public class SuperMente extends SingleAgent {
      * @return true si todos los vehiculos han alcanzado el objetivo, false en caso contrario
      */
     private boolean irAlObjetivo() {
-        int numVehiculos = 0;       // Numero de vehiculos que han alcanzado el objetivo
-        boolean terminar = false;   // True si se ha alcanzado el objetivo o si se han quedado sin bateria
+        // Declarar las 4 rutas
+        Stack<String> rutav0, rutav1, rutav2, rutav3;
 
-        while (!terminar) { // Creo que este bucle no hara falta
-            // Declarar las 4 rutas
-            Stack<String> rutav0, rutav1, rutav2, rutav3;
+        // todo Ordenar vehiculos por gasto de bateria, o mejor, dron>coche>camion DEBATIR SOBRE ESTO PLS
+        // todo Este es un algoritmo de ordenado de mierda, no me apetece mucho pensar hoy
+        ArrayList<EstadoVehiculo> vordenados = new ArrayList<>();
+        for (int i=0 ; i < vehiculos.size() ; i++){
+            if(vehiculos.get(i).getTipoVehiculo() == TipoVehiculo.DRON){
+                vordenados.add(vehiculos.get(i));
+            }
+        }
 
-            // todo Ordenar vehiculos por gasto de bateria, o mejor, dron>coche>camion DEBATIR SOBRE ESTO PLS
-            // todo Este es un algoritmo de ordenado de mierda, no me apetece mucho pensar hoy
-            ArrayList<EstadoVehiculo> vordenados = new ArrayList();
-            for (int i=0 ; i < vehiculos.size() ; i++){
-                if(vehiculos.get(i).getTipoVehiculo().equals(Mensajes.VEHICLE_TYPE_HELICOPTERO)){
-                    vordenados.add(vehiculos.get(i));
-                }
+        for (int i=0 ; i < vehiculos.size() ; i++){
+            if(vehiculos.get(i).getTipoVehiculo() == TipoVehiculo.COCHE){
+                vordenados.add(vehiculos.get(i));
+            }
+        }
+
+        for (int i=0 ; i < vehiculos.size() ; i++){
+            if(vehiculos.get(i).getTipoVehiculo() == TipoVehiculo.CAMION){
+                vordenados.add(vehiculos.get(i));
+            }
+        }
+
+        //Escoger los goalX y goalY más cercano a cada vehiculo
+        int goalX[] = new int[4];
+        int goalY[] = new int[4];
+
+        for(int i=0 ; i<4 ; i++){
+            //0,0 arriba a la izquierda, pero bajar es positivo
+            if(vehiculos.get(i).coor_x < goalLeft){
+                goalX[i] = goalLeft;
+            } else if (vehiculos.get(i).coor_x > goalRight){
+                goalX[i] = goalRight;
+            } else {
+                goalX[i] = vehiculos.get(i).coor_x;
             }
 
-            for (int i=0 ; i < vehiculos.size() ; i++){
-                if(vehiculos.get(i).getTipoVehiculo().equals(Mensajes.VEHICLE_TYPE_COCHE)){
-                    vordenados.add(vehiculos.get(i));
-                }
+            if(vehiculos.get(i).coor_y < goalBottom){
+                goalY[i] = goalBottom;
+            } else if (vehiculos.get(i).coor_y > goalTop){
+                goalY[i] = goalTop;
+            } else {
+                goalY[i] = vehiculos.get(i).coor_y;
             }
+        }
 
-            for (int i=0 ; i < vehiculos.size() ; i++){
-                if(vehiculos.get(i).getTipoVehiculo().equals(Mensajes.VEHICLE_TYPE_CAMION)){
-                    vordenados.add(vehiculos.get(i));
-                }
-            }
-
-            //Escoger los goalX y goalY más cercano a cada vehiculo
-            int goalX[] = new int[4];
-            int goalY[] = new int[4];
-
-            for(int i=0 ; i<4 ; i++){
-                //todo Revisar: considero que el origen de coordenadas esta abajo a la izquierda
-                if(vehiculos.get(i).coor_x < goalLeft){
-                    goalX[i] = goalLeft;
-                } else if (vehiculos.get(i).coor_x > goalRight){
-                    goalX[i] = goalRight;
-                } else {
-                    goalX[i] = vehiculos.get(i).coor_x;
-                }
-
-                if(vehiculos.get(i).coor_y < goalBottom){
-                    goalY[i] = goalBottom;
-                } else if (vehiculos.get(i).coor_y > goalTop){
-                    goalY[i] = goalTop;
-                } else {
-                    goalY[i] = vehiculos.get(i).coor_y;
-                }
-            }
-
-            // En caso de conflicto, el de menor combustible, si es igual, el primero del array ordenado,
-            // dará un paso mas para no quedarse en la periferia del objetivo
-            //todo He rehecho esto de 4234 formas y tengo la cabeza como un bombo, revisadlo pls
-            /** /
-             La idea es: revisa los goals de los 4 coches en orden de menos consumo a mas.
-             Si encuentra que tienen el mismo goal, el de menos consumo se moverá a una casilla adyacente que sea objetivo
-             y que esté libre.
-             **/
-            for (int i = 0; i < 4; i++) {
-                if(comprobarCoincidenciaObjetivo(i, goalX, goalY)){ // Si la casilla objetivo está ocupada por otro vehículo
-                    // Iteramos sobre las casillas adyacentes
-                    for(int y=goalY[i]-1 ; y<=goalY[i]+1 ; y++){
-                        for(int x=goalX[i]-1 ; x<=goalX[i]+1 ; x++){
-                            if(!(y==goalY[i] && x==goalX[i])){ //exceptuando el centro
-                                if(esObjetivo(x,y) && !comprobarPosicionOcupada(x,y,goalX,goalY)){ //si es objetivo y no está ocupada
-                                    //Establecemos nuevo goal
-                                    goalX[i] = x;
-                                    goalY[i] = y;
-                                }
+        // En caso de conflicto, el de menor combustible, si es igual, el primero del array ordenado,
+        // dará un paso mas para no quedarse en la periferia del objetivo
+        //todo He rehecho esto de 4234 formas y tengo la cabeza como un bombo, revisadlo pls
+        /** /
+         La idea es: revisa los goals de los 4 coches en orden de menos consumo a mas.
+         Si encuentra que tienen el mismo goal, el de menos consumo se moverá a una casilla adyacente que sea objetivo
+         y que esté libre.
+         **/
+        for (int i = 0; i < 4; i++) {
+            if(comprobarCoincidenciaObjetivo(i, goalX, goalY)){ // Si la casilla objetivo está ocupada por otro vehículo
+                // Iteramos sobre las casillas adyacentes
+                for(int y=goalY[i]-1 ; y<=goalY[i]+1 ; y++){
+                    for(int x=goalX[i]-1 ; x<=goalX[i]+1 ; x++){
+                        if(!(y==goalY[i] && x==goalX[i])){ //exceptuando el centro
+                            if(esObjetivo(x,y) && !comprobarPosicionOcupada(x,y,goalX,goalY)){ //si es objetivo y no está ocupada
+                                //Todo salirse del bucle
+                                //Establecemos nuevo goal
+                                goalX[i] = x;
+                                goalY[i] = y;
                             }
                         }
                     }
                 }
             }
-
-            // Ahora que tenemos los objetivos, obtenemos secuencia y ejecutamos
-            // así, para que tengan en cuenta la posición de los vehiculos en el objetivo y no se choquen con ellos
-            rutav0 = encontrarRuta(goalX[0], goalY[0], vordenados.get(0));
-            guiarVehiculo(rutav0, vordenados.get(0));
-            rutav1 = encontrarRuta(goalX[1], goalY[1], vordenados.get(1));
-            guiarVehiculo(rutav1, vordenados.get(1));
-            rutav2 = encontrarRuta(goalX[2], goalY[2], vordenados.get(2));
-            guiarVehiculo(rutav2, vordenados.get(2));
-            rutav3 = encontrarRuta(goalX[3], goalY[3], vordenados.get(3));
-            guiarVehiculo(rutav3, vordenados.get(3));
         }
 
+        // Ahora que tenemos los objetivos, obtenemos secuencia y ejecutamos
+        // así, para que tengan en cuenta la posición de los vehiculos en el objetivo y no se choquen con ellos
+        rutav0 = encontrarRuta(goalX[0], goalY[0], vordenados.get(0));
+        guiarVehiculo(rutav0, vordenados.get(0));
+        //rutav1 = encontrarRuta(goalX[1], goalY[1], vordenados.get(1));
+        //guiarVehiculo(rutav1, vordenados.get(1));
+        //rutav2 = encontrarRuta(goalX[2], goalY[2], vordenados.get(2));
+        //guiarVehiculo(rutav2, vordenados.get(2));
+        //rutav3 = encontrarRuta(goalX[3], goalY[3], vordenados.get(3));
+        //guiarVehiculo(rutav3, vordenados.get(3));
+
+
         // Todo revisar criterio de aceptacion de cantidad de vehiculos que llegan
-        if (numVehiculos == vehiculos.size()) return true;
-        else return true;
+        return true;
     }
 
 
@@ -442,29 +421,39 @@ public class SuperMente extends SingleAgent {
      */
     private void guiarVehiculo(Stack<String> ruta, EstadoVehiculo vehiculo){
         //todo revisar si ruta.size da la cantidad de elementos dentro del stack o el tamaño del stack, no estoy seguro
-        //todo revisar las recogidas de percepcion
         String nextMove;
+        boolean hayBateriaMundo = bateriaTotal > 0;
         // Va hacia el objetivo recargando cada vez que sea estrictamente necesario.
-        while(ruta.size()*vehiculo.consumo < 100){
+        while(ruta.size()*vehiculo.consumo < 100 && hayBateriaMundo){
             if(vehiculo.battery <= vehiculo.consumo){
                 sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
-                /*??*/ recogerPercepcion(vehiculo);
+
             } else {
                 nextMove = ruta.pop();
                 sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(nextMove), vehiculo.id);
-                recogerPercepcion(vehiculo); //??
+
+            }
+
+            /*Si esto devuelve false, es que no ha podido repostar porque no hay bateria
+                en el mundo, por lo que aborta
+            */
+            if(!recogerPercepcion(vehiculo)){
+                hayBateriaMundo = false;
             }
         }
 
-        // Sale del while porque ya le va a costar menos de 100 de batería llegar al objetivo, así que recarga una última vez
-        sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
-        /*??*/ recogerPercepcion(vehiculo);
+        //TODO si cuenta la cercania de los vehiculos al objetivo, revisar esta parte
+        if(bateriaTotal+vehiculo.battery >= 100) {
+            // Sale del while porque ya le va a costar menos de 100 de batería llegar al objetivo, así que recarga una última vez
+            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
+            recogerPercepcion(vehiculo);
 
-        // Realiza las acciones que le quedan sin recargar
-        while(!ruta.isEmpty()){
-            nextMove = ruta.pop();
-            sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(nextMove), vehiculo.id);
-            recogerPercepcion(vehiculo); //??
+            // Realiza las acciones que le quedan sin recargar
+            while (!ruta.isEmpty()) {
+                nextMove = ruta.pop();
+                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(nextMove), vehiculo.id);
+                recogerPercepcion(vehiculo); //?? TODO revisar si es conveniente o no por lo que sea recoger la percepcion
+            }
         }
     }
 
@@ -492,6 +481,7 @@ public class SuperMente extends SingleAgent {
     private boolean comprobarCoincidenciaObjetivo(int index, int goalX[], int goalY[]){
         boolean coincide = false;
 
+        System.out.println("Metodo comprobarCoincidenciaObjetivo: Array.length deberia ser 4: es ->" + goalX.length + "<-");
         for(int i=0 ; i<goalX.length ; i++){ //todo Asegurarse de que coge bien el length cuando pasas el array como parámetro (o poner 4 y a pastar)
             if(i!=index){
                 if(goalX[i] == goalX[index] && goalY[i] == goalY[index]){
@@ -514,7 +504,7 @@ public class SuperMente extends SingleAgent {
      */
     private boolean comprobarPosicionOcupada(int posX, int posY, int goalX[], int goalY[]){
         boolean ocupada = false;
-
+        System.out.println("Metodo comprobarPosicionOcupada: Array.length deberia ser 4: es ->" + goalX.length + "<-");
         for(int i=0 ; i<goalX.length ; i++){ //todo Asegurarse de que coge bien el length cuando pasas el array como parámetro
             if(posX == goalX[i] && posY == goalY[i]){
                 ocupada=true;
@@ -541,17 +531,20 @@ public class SuperMente extends SingleAgent {
 
         abiertos.add(new Nodo(new Point2D.Double(vehiculo.coor_x, vehiculo.coor_y),0,goal,"",null));
 
-        boolean terminado = false;
         Nodo actual;
 
         while(!abiertos.isEmpty()){
             actual = posCosteMasBajo(abiertos);
 
+            System.out.println("Método encontrarRuta: el equals y tal");
+            System.out.println("Actual: x->" + actual.punto.x + " y->" + actual.punto.y);
+            System.out.println("Goal: x->" + goal.x + " y->" + goal.y);
             if(actual.punto.equals(goal)){
+                System.out.println("Son iguales");
                 //Sacar la lista de acciones
-                return recontruirRuta(actual);
-
+                return reconstruirRuta(actual);
             }
+
             cerrados.add(actual);
             abiertos.remove(actual);
 
@@ -559,7 +552,7 @@ public class SuperMente extends SingleAgent {
             ArrayList<Nodo> nodosVecinos = new ArrayList<>();
             //NOROESTE //TODO REVISAR LOS -1 +1 de las posiciones
             nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()-1),actual.g_coste + 1,
-                    goal,Mensajes.AGENT_COM_ACCION_MV_NW,actual ));
+                    goal,Mensajes.AGENT_COM_ACCION_MV_NW, actual));
 
             //NORTE
             nodosVecinos.add(new Nodo(new Point2D.Double(actual.x(),actual.y()-1),actual.g_coste + 1,
@@ -587,22 +580,27 @@ public class SuperMente extends SingleAgent {
 
 
             //SURESTE
-            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()+1),actual.g_coste + 1,
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()+1,actual.y()+1),actual.g_coste + 1,
                     goal,Mensajes.AGENT_COM_ACCION_MV_NE,actual ));
 
             //Si el vecino es válido lo añado a abiertos
 
+            System.out.println("Método encontrarRuta: el contains y tal");
             for (Nodo nodoVecino:nodosVecinos) {
+                System.out.println("Cerrados: x->" + cerrados.contains(nodoVecino) );
                 if(!cerrados.contains(nodoVecino) &&
                         mapaMundo[(int)nodoVecino.y()][(int)nodoVecino.x()] != 2 &&
                         mapaMundo[(int)nodoVecino.y()][(int)nodoVecino.x()] != 4){
-                    abiertos.add(nodoVecino);
+                    if(vehiculo.getTipoVehiculo() == TipoVehiculo.DRON ||
+                            mapaMundo[(int)nodoVecino.y()][(int)nodoVecino.x()] != 1) {
+                        abiertos.add(nodoVecino);
+                    }
                 }
 
             }
 
-        }
-
+        } // Fin while
+        System.out.println("Metodo encontrarRuta: No hay solución, algo falla");
         // Si se devuelve este acciones (vacio) es que no hay solucion
         return acciones;
     }
@@ -634,8 +632,7 @@ public class SuperMente extends SingleAgent {
      * @param nodo nodo final de una ruta.
      * @return una secuencia de acciones para llegar al nodo.
      */
-    // todo Pone "recontruirRuta", deberia ser "reconSSSStruirRuta"
-    private Stack<String> recontruirRuta(Nodo nodo){
+    private Stack<String> reconstruirRuta(Nodo nodo){
         Stack<String> acciones = new Stack<String>();
 
         while (nodo.anterior != null){
