@@ -1067,7 +1067,7 @@ public class SuperMente extends SingleAgent {
 
     /**
      * Procesar la percepción recibida de un vehículo
-     * @author Diego Iáñez Ávila
+     * @author Diego Iáñez Ávila, Ángel Píñar Rivas, Jose Luis Martínez Ortiz
      */
     private void procesarPercepcion(EstadoVehiculo vehiculo, String jsonPercepcion){
         System.out.println("Procesando percepción");
@@ -1108,16 +1108,33 @@ public class SuperMente extends SingleAgent {
         int xmapa, ymapa;
 
         ArrayList<Integer> radar = new ArrayList<>();
-
+        int valorSensor = -1;
         for (int fila = 0; fila < ancho; ++fila){
             for (int columna = 0; columna < ancho; ++columna){
                 xmapa = x + columna;
                 ymapa = y + fila;
 
-                radar.add(sensor.get(fila*ancho + columna).asInt());
+                valorSensor = sensor.get(fila*ancho + columna).asInt();
+
+                radar.add(valorSensor);
 
                 if (xmapa >= 0 && ymapa >= 0){
-                    mapaMundo[ymapa][xmapa] = sensor.get(fila * ancho + columna).asInt();
+                    mapaMundo[ymapa][xmapa] = valorSensor;
+
+                    if(valorSensor == 3){
+                        if(ymapa < goalTop){
+                            goalTop = ymapa;
+                        }
+                        if(ymapa > goalBottom){
+                            goalBottom = ymapa;
+                        }
+                        if(xmapa < goalLeft){
+                            goalLeft = xmapa;
+                        }
+                        if(xmapa > goalRight){
+                            goalRight = xmapa;
+                        }
+                    }
                 }
             }
         }
