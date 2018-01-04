@@ -480,9 +480,7 @@ public class SuperMente extends SingleAgent {
      */
     private boolean comprobarCoincidenciaObjetivo(int index, int goalX[], int goalY[]){
         boolean coincide = false;
-
-        System.out.println("Metodo comprobarCoincidenciaObjetivo: Array.length deberia ser 4: es ->" + goalX.length + "<-");
-        for(int i=0 ; i<goalX.length ; i++){ //todo Asegurarse de que coge bien el length cuando pasas el array como parámetro (o poner 4 y a pastar)
+        for(int i=0 ; i<goalX.length ; i++){
             if(i!=index){
                 if(goalX[i] == goalX[index] && goalY[i] == goalY[index]){
                     coincide = true;
@@ -504,8 +502,8 @@ public class SuperMente extends SingleAgent {
      */
     private boolean comprobarPosicionOcupada(int posX, int posY, int goalX[], int goalY[]){
         boolean ocupada = false;
-        System.out.println("Metodo comprobarPosicionOcupada: Array.length deberia ser 4: es ->" + goalX.length + "<-");
-        for(int i=0 ; i<goalX.length ; i++){ //todo Asegurarse de que coge bien el length cuando pasas el array como parámetro
+
+        for(int i=0 ; i<goalX.length ; i++){
             if(posX == goalX[i] && posY == goalY[i]){
                 ocupada=true;
             }
@@ -536,9 +534,11 @@ public class SuperMente extends SingleAgent {
         while(!abiertos.isEmpty()){
             actual = posCosteMasBajo(abiertos);
 
+            /** /
             System.out.println("Método encontrarRuta: el equals y tal");
             System.out.println("Actual: x->" + actual.punto.x + " y->" + actual.punto.y);
             System.out.println("Goal: x->" + goal.x + " y->" + goal.y);
+             /**/
             if(actual.punto.equals(goal)){
                 System.out.println("Son iguales");
                 //Sacar la lista de acciones
@@ -550,7 +550,7 @@ public class SuperMente extends SingleAgent {
 
             // Miramos los posibles movimientos
             ArrayList<Nodo> nodosVecinos = new ArrayList<>();
-            //NOROESTE //TODO REVISAR LOS -1 +1 de las posiciones
+            //NOROESTE
             nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()-1),actual.g_coste + 1,
                     goal,Mensajes.AGENT_COM_ACCION_MV_NW, actual));
 
@@ -588,6 +588,7 @@ public class SuperMente extends SingleAgent {
             System.out.println("Método encontrarRuta: el contains y tal");
             for (Nodo nodoVecino:nodosVecinos) {
                 System.out.println("Cerrados: x->" + cerrados.contains(nodoVecino) );
+                //TODO a partir de aqui peta (INDICES NEGATIVOS EN nodosVecinos???)
                 if(!cerrados.contains(nodoVecino) &&
                         mapaMundo[(int)nodoVecino.y()][(int)nodoVecino.x()] != 2 &&
                         mapaMundo[(int)nodoVecino.y()][(int)nodoVecino.x()] != 4){
@@ -596,8 +597,10 @@ public class SuperMente extends SingleAgent {
                         abiertos.add(nodoVecino);
                     }
                 }
+                //TODO a partir de aqui ?? porque lo de antes peta.
 
             }
+            System.out.println("Método encontrarRuta: Terminado bucle del contains y tal");
 
         } // Fin while
         System.out.println("Metodo encontrarRuta: No hay solución, algo falla");
