@@ -278,7 +278,7 @@ public class SuperMente extends SingleAgent {
                 conversationID = answer.getConversationId();
                 System.out.println(conversationID);
             } else {
-                System.out.println(answer.getContent().toString());
+                System.out.println(answer.getContent());
             }
         } while (answer.getPerformativeInt() != ACLMessage.INFORM || !answer.getContent().equals("{\"result\":\"OK\"}"));
     }
