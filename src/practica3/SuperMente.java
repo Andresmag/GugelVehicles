@@ -551,7 +551,11 @@ public class SuperMente extends SingleAgent {
      * @return True si (x,y) es un objetivo
      */
     private boolean esObjetivo(int x, int y){
-        return mapaMundo[y][x] == 3;
+        boolean esObjetivo = false;
+        if(x>0 && y>0){
+            esObjetivo = mapaMundo[y][x] == 3;
+        }
+        return esObjetivo;
     }
 
     /** En el contexto de posiciones objetivo de los vehiculos, donde el indice representa el vehiculo, comprueba
