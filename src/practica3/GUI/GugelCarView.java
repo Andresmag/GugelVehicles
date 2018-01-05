@@ -4,6 +4,7 @@ import es.upv.dsic.gti_ia.core.AgentID;
 import practica3.SuperMente;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
@@ -18,6 +19,7 @@ public class GugelCarView extends JFrame {
     private JLabel traceLabel;
     private JPanel canvasPanel;
     private TraceMap traceMap;
+    private JButton buttonReiniciar;
 
     private SuperMente superMente;
 
@@ -43,16 +45,33 @@ public class GugelCarView extends JFrame {
             }
         });
 
+        buttonReiniciar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                onReiniciar();
+            }
+        });
+
         setContentPane(contentPane);
         setTitle("DBA Practica 3: GugelCar");
-        setLocationRelativeTo(null);
         setSize(650, 400);
         initComponents();
+        setLocationRelativeTo(null);
+
+        //Centrar en pantalla
+       // Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+       // this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
 
         this.mapaSeleccionado = mapaSeleccionado;
         this.nombreAgente = nombreAgente;
 
         mapIndicator.setText(mapaSeleccionado);
+
+        try {
+            superMente = new SuperMente(mapaSeleccionado, new AgentID("Supermente"),this);
+        } catch (Exception e) {
+            System.out.println("Error al inicializar Supermente en GugelCardView");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -78,6 +97,7 @@ public class GugelCarView extends JFrame {
         buttonEjecutar.setEnabled(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
+
 
     }
 
@@ -123,9 +143,7 @@ public class GugelCarView extends JFrame {
      */
     private void onEjecutar(){
         try {
-            superMente = new SuperMente(mapaSeleccionado, new AgentID("Supermente"),this);
-
-            System.out.println("\n\n-------------------------------\n");
+         System.out.println("\n\n-------------------------------\n");
 
             superMente.start();
 
@@ -151,6 +169,16 @@ public class GugelCarView extends JFrame {
      */
     private void onSalir(){
         System.exit(0);
+    }
+
+    /**
+     * Permite a supermente reiniciar la sesión,
+     * por si se hubiera cerrado mal anteriormente.
+     *
+     * @Author Jose Luis Martínez Ortiz
+     */
+    private void onReiniciar(){
+        superMente.reiniciarSesion();
     }
 
 }

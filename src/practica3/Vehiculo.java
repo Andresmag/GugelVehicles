@@ -242,7 +242,8 @@ public class Vehiculo extends SingleAgent {
 
         outbox.setPerformative(performativa);
 
-        System.out.println("Vehiculo envía a controlador: " + message);
+        System.out.println("Vehiculo envía a controlador: " + message + ", conversation id="+outbox.getConversationId()+
+        ", performativa="+outbox.getPerformative());
 
         send(outbox);
     }
