@@ -152,9 +152,9 @@ public class SuperMente extends SingleAgent {
 
                     break;
                 case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
-                    //exploracionFinalizada = explorarMapa();
+                    exploracionFinalizada = explorarMapa();
 
-                    /* Engañar para pruebas */
+                    /* Engañar para pruebas * /
                     exploracionFinalizada = true;
 
                     for (int x = 48; x < 53; ++x){
