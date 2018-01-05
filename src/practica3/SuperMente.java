@@ -622,8 +622,7 @@ public class SuperMente extends SingleAgent {
 
         System.out.print("Método encontrarRuta: buscando");
         while(!abiertos.isEmpty()){
-            // TODO comentar esta cosa destructora de eficiencia
-            System.out.print(". ");
+            //System.out.print(". ");
             actual = posCosteMasBajo(abiertos);
 
             /** /
