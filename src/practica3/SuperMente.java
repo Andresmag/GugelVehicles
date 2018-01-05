@@ -152,9 +152,9 @@ public class SuperMente extends SingleAgent {
 
                     break;
                 case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
-                    exploracionFinalizada = explorarMapa();
+                    //exploracionFinalizada = explorarMapa();
 
-                    /* Engañar para pruebas * /
+                    // Engañar para pruebas
                     exploracionFinalizada = true;
 
                     for (int x = 48; x < 53; ++x){
@@ -166,12 +166,12 @@ public class SuperMente extends SingleAgent {
                     for (int i = 0; i < dimensionesMapa; ++i){
                         mapaMundo[i][100] = 2;
                     }
+                    //Puestas a ojo para el mapa 3
+                    goalLeft = 64;
+                    goalRight = 67;
+                    goalTop = 35;
+                    goalBottom = 37;
 
-                    goalLeft = 48;
-                    goalRight = 52;
-                    goalTop = 46;
-                    goalBottom = 49;
-                    /**/
 
                     System.out.println("Fin explorar mapa");
 
@@ -621,75 +621,92 @@ public class SuperMente extends SingleAgent {
         Nodo actual;
 
         System.out.print("Método encontrarRuta: buscando");
+
+
+        float costemovimiento = 1;
+
         while(!abiertos.isEmpty()){
             //System.out.print(". ");
             actual = posCosteMasBajo(abiertos);
+            cerrados.add(actual);
+            //Borra todas las ocurrencias de abiertos
+            while(abiertos.remove(actual)){
+                System.out.println("borro");
 
-            /** /
-            System.out.println("Método encontrarRuta: el equals y tal");
+            };
+
+
+            System.out.println("Método encontrarRuta: el equals y tal: "+abiertos.contains(actual));
             System.out.println("Actual: x->" + actual.punto.x + " y->" + actual.punto.y);
             System.out.println("Goal: x->" + goal.x + " y->" + goal.y);
-            /**/
+
             if(actual.punto.equals(goal)){
                 System.out.println("Ruta encontrada para el vehículo "+vehiculo.id.name);
                 //Sacar la lista de acciones
                 return reconstruirRuta(actual);
             }
 
-            cerrados.add(actual);
-            abiertos.remove(actual);
 
             // Miramos los posibles movimientos
             ArrayList<Nodo> nodosVecinos = new ArrayList<>();
             //NOROESTE
-            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()-1),actual.g_coste + 1,
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()-1),actual.g_coste + costemovimiento,
                     goal,Mensajes.AGENT_COM_ACCION_MV_NW, actual));
 
             //NORTE
-            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x(),actual.y()-1),actual.g_coste + 1,
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x(),actual.y()-1),actual.g_coste + costemovimiento,
                     goal,Mensajes.AGENT_COM_ACCION_MV_N,actual ));
 
             //NORESTE
-            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()+1,actual.y()-1),actual.g_coste + 1,
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()+1,actual.y()-1),actual.g_coste + costemovimiento,
                     goal,Mensajes.AGENT_COM_ACCION_MV_NE,actual ));
 
             //OESTE
-            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()),actual.g_coste + 1,
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()),actual.g_coste + costemovimiento,
                     goal,Mensajes.AGENT_COM_ACCION_MV_W,actual ));
 
             //OESTE
-            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()+1,actual.y()),actual.g_coste + 1,
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()+1,actual.y()),actual.g_coste + costemovimiento,
                     goal,Mensajes.AGENT_COM_ACCION_MV_E,actual ));
 
             //SUROESTE
-            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()+1),actual.g_coste + 1,
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()-1,actual.y()+1),actual.g_coste + costemovimiento,
                     goal,Mensajes.AGENT_COM_ACCION_MV_SW,actual ));
 
             //SUR
-            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x(),actual.y()+1),actual.g_coste + 1,
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x(),actual.y()+1),actual.g_coste + costemovimiento,
                     goal,Mensajes.AGENT_COM_ACCION_MV_S,actual ));
 
 
             //SURESTE
-            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()+1,actual.y()+1),actual.g_coste + 1,
+            nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()+1,actual.y()+1),actual.g_coste + costemovimiento,
                     goal,Mensajes.AGENT_COM_ACCION_MV_SE,actual ));
 
             //Si el vecino es válido lo añado a abiertos
 
             //System.out.println("Método encontrarRuta: el contains y tal");
             for (Nodo nodoVecino:nodosVecinos) {
-               // System.out.println("Cerrados: x->" + cerrados.contains(nodoVecino) );
-               // System.out.println("NodoVecino: " + nodoVecino.accion + " - X="+(int)nodoVecino.x()+", Y="+(int)nodoVecino.y());
+                System.out.println("Cerrados: x->" + cerrados.contains(nodoVecino) );
+                System.out.print("NodoVecino: " + nodoVecino.accion + " - X="+(int)nodoVecino.x()+", Y="+(int)nodoVecino.y());
                 if((int)nodoVecino.y() >= 0 && (int)nodoVecino.y() < 1000 &&
                    (int)nodoVecino.x() >= 0 && (int)nodoVecino.x() < 1000)
-                    if(!cerrados.contains(nodoVecino) &&
-                            mapaMundo[(int)nodoVecino.y()][(int)nodoVecino.x()] != 2 &&
-                            mapaMundo[(int)nodoVecino.y()][(int)nodoVecino.x()] != 4){
-                        if(vehiculo.getTipoVehiculo() == TipoVehiculo.DRON ||
-                                mapaMundo[(int)nodoVecino.y()][(int)nodoVecino.x()] != 1) {
-                            abiertos.add(nodoVecino);
+                    if(!cerrados.contains(nodoVecino)) {
+                        if (mapaMundo[(int) nodoVecino.y()][(int) nodoVecino.x()] != 2 &&
+                            mapaMundo[(int) nodoVecino.y()][(int) nodoVecino.x()] != 4) {
+                            if (vehiculo.getTipoVehiculo() == TipoVehiculo.DRON ||
+                                    mapaMundo[(int) nodoVecino.y()][(int) nodoVecino.x()] != 1) {
+                                abiertos.add(nodoVecino);
+                                System.out.println("");
+                            } else {
+                                System.out.println(" XX obstáculo");
+                            }
+                        } else {
+                            System.out.println(" XX coche/bordemundo");
                         }
+                    }else{
+                        System.out.println(" XX en cerrados");
                     }
+
                 //Revisado hasta aquí, funciona y encuentra el objetivo con el retuns adecuado.
 
             }
