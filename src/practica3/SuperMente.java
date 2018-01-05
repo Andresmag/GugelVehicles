@@ -152,9 +152,9 @@ public class SuperMente extends SingleAgent {
 
                     break;
                 case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
-                    //exploracionFinalizada = explorarMapa();
+                    exploracionFinalizada = explorarMapa();
 
-                    /* Engañar para pruebas */
+                    /* Engañar para pruebas * /
                     exploracionFinalizada = true;
 
                     for (int x = 48; x < 53; ++x){
@@ -433,7 +433,12 @@ public class SuperMente extends SingleAgent {
 
         for(int i=0 ; i<4 ;i++){
             if(comprobarCoincidenciaObjetivo(i, goalX, goalY)){
-                System.out.println("ERROR LOCALIZADO");
+                System.out.println("ERROR LOCALIZADO (irAlObjetivo) Hay dos vehiculos con el mismo objetivo");
+                try {
+                    Thread.sleep(10000);
+                } catch(Exception e){
+                    System.out.println("EXCEPCION DE ERROR LOCALIZADO");
+                }
             }
         }
 
@@ -606,6 +611,7 @@ public class SuperMente extends SingleAgent {
 
         System.out.print("Método encontrarRuta: buscando");
         while(!abiertos.isEmpty()){
+            // TODO comentar esta cosa destructora de eficiencia
             System.out.print(". ");
             actual = posCosteMasBajo(abiertos);
 
