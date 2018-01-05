@@ -382,22 +382,26 @@ public class SuperMente extends SingleAgent {
 
         for(int i=0 ; i<4 ; i++){
             //0,0 arriba a la izquierda, pero bajar es positivo
-            if(vehiculos.get(i).coor_x < goalLeft){
+            if(vordenados.get(i).coor_x < goalLeft){
                 goalX[i] = goalLeft;
-            } else if (vehiculos.get(i).coor_x > goalRight){
+            } else if (vordenados.get(i).coor_x > goalRight){
                 goalX[i] = goalRight;
             } else {
-                goalX[i] = vehiculos.get(i).coor_x;
+                goalX[i] = vordenados.get(i).coor_x;
             }
 
-            if(vehiculos.get(i).coor_y < goalBottom){
+            if(vordenados.get(i).coor_y > goalBottom){
                 goalY[i] = goalBottom;
-            } else if (vehiculos.get(i).coor_y > goalTop){
+            } else if (vordenados.get(i).coor_y < goalTop){
                 goalY[i] = goalTop;
             } else {
-                goalY[i] = vehiculos.get(i).coor_y;
+                goalY[i] = vordenados.get(i).coor_y;
             }
         }
+
+        int objInicialX[] = goalX.clone();
+        int objInicialY[] = goalY.clone();
+
 
         // En caso de conflicto, el de menor combustible, si es igual, el primero del array ordenado,
         // dará un paso mas para no quedarse en la periferia del objetivo
@@ -407,14 +411,15 @@ public class SuperMente extends SingleAgent {
          Si encuentra que tienen el mismo goal, el de menos consumo se moverá a una casilla adyacente que sea objetivo
          y que esté libre.
          **/
+        boolean salir = false;
         for (int i = 0; i < 4; i++) {
             if(comprobarCoincidenciaObjetivo(i, goalX, goalY)){ // Si la casilla objetivo está ocupada por otro vehículo
                 // Iteramos sobre las casillas adyacentes
-                for(int y=goalY[i]-1 ; y<=goalY[i]+1 ; y++){
-                    for(int x=goalX[i]-1 ; x<=goalX[i]+1 ; x++){
+                for(int y=goalY[i]-1 ; y<=goalY[i]+1 && !salir; y++){
+                    for(int x=goalX[i]-1 ; x<=goalX[i]+1 && !salir; x++){
                         if(!(y==goalY[i] && x==goalX[i])){ //exceptuando el centro
                             if(esObjetivo(x,y) && !comprobarPosicionOcupada(x,y,goalX,goalY)){ //si es objetivo y no está ocupada
-                                //Todo salirse del bucle
+                                salir = true;
                                 //Establecemos nuevo goal
                                 goalX[i] = x;
                                 goalY[i] = y;
@@ -423,18 +428,32 @@ public class SuperMente extends SingleAgent {
                     }
                 }
             }
+            salir = false;
         }
+
+        for(int i=0 ; i<4 ;i++){
+            if(comprobarCoincidenciaObjetivo(i, goalX, goalY)){
+                System.out.println("ERROR LOCALIZADO");
+            }
+        }
+
+
 
         // Ahora que tenemos los objetivos, obtenemos secuencia y ejecutamos
         // así, para que tengan en cuenta la posición de los vehiculos en el objetivo y no se choquen con ellos
-        rutav0 = encontrarRuta(goalX[0], goalY[0], vordenados.get(0));
-        guiarVehiculo(rutav0, vordenados.get(0));
-        //rutav1 = encontrarRuta(goalX[1], goalY[1], vordenados.get(1));
-        //guiarVehiculo(rutav1, vordenados.get(1));
-        //rutav2 = encontrarRuta(goalX[2], goalY[2], vordenados.get(2));
-        //guiarVehiculo(rutav2, vordenados.get(2));
-        //rutav3 = encontrarRuta(goalX[3], goalY[3], vordenados.get(3));
-        //guiarVehiculo(rutav3, vordenados.get(3));
+        for (int i=0 ; i<4 ; ++i) {
+            rutav0 = encontrarRuta(goalX[i], goalY[i], vordenados.get(i));
+            guiarVehiculo(rutav0, vordenados.get(i));
+            mapaMundo[goalY[i]][goalX[i]] = 4;
+
+        }
+
+        for (int i=0 ; i<4 ; ++i) {
+            System.out.println("Objetivos iniciales vehiculo ordenado "+i+": ");
+            System.out.println("x:" + objInicialX[i] + " y: " + objInicialY[i]);
+            System.out.println("Objetivos alterados vehiculo ordenado "+i+": ");
+            System.out.println("x:" + goalX[i] + " y: " + goalY[i]);
+        }
 
 
         // Todo revisar criterio de aceptacion de cantidad de vehiculos que llegan
@@ -450,11 +469,19 @@ public class SuperMente extends SingleAgent {
      */
     private void guiarVehiculo(Stack<String> ruta, EstadoVehiculo vehiculo){
         System.out.println("Debug guiarVehiculo: "+ ruta.size() +"="+contador);
+        /**/
+        Stack<String> copia = (Stack<String>) ruta.clone();
+        System.out.println("Vehiculo x:" + vehiculo.coor_x + " y:" + vehiculo.coor_y);
+        while(!copia.isEmpty()){
+            System.out.println(copia.pop());
+        }
+        /**/
 
         String nextMove;
         boolean hayBateriaMundo = bateriaTotal > 0;
         // Va hacia el objetivo recargando cada vez que sea estrictamente necesario.
         System.out.println("Inicio While "+ vehiculo.battery+ " - condicion="+ruta.size()*vehiculo.consumo+ " Bateria mundo="+bateriaTotal);
+
         while(ruta.size()*vehiculo.consumo >= 100 && hayBateriaMundo){
             nextMove = ruta.pop();
             System.out.println("Cojo movimiento :"+nextMove);
@@ -476,14 +503,7 @@ public class SuperMente extends SingleAgent {
             // Sale del while porque ya le va a costar menos de 100 de batería llegar al objetivo, así que recarga una última vez
             sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
             System.out.println("VG - enviado ultimo repostage");
-            /* TODO este recogerPercepción falla, con
-                Vehiculo qpid://coche0@localhost:8080 recibe: {"command":"refuel"} en estado: 1
-                Vehiculo envía a controlador: {"command":"refuel"}
-                Vehiculo qpid://coche0@localhost:8080 recibe: {"details":"BAD PERFORMATIVE OR BAD CONVERSATION"} en estado: 1
-                Vehiculo envía a supermente:
-                Supermente recibe
-                Procesando percepción
-            */
+
             recogerPercepcion(vehiculo);
             System.out.println("VG - recibido ultimo repostage");
 
@@ -636,7 +656,7 @@ public class SuperMente extends SingleAgent {
 
             //SURESTE
             nodosVecinos.add(new Nodo(new Point2D.Double(actual.x()+1,actual.y()+1),actual.g_coste + 1,
-                    goal,Mensajes.AGENT_COM_ACCION_MV_NE,actual ));
+                    goal,Mensajes.AGENT_COM_ACCION_MV_SE,actual ));
 
             //Si el vecino es válido lo añado a abiertos
 
