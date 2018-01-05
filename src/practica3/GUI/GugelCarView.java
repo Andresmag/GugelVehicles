@@ -1,17 +1,12 @@
 package practica3.GUI;
 
 import es.upv.dsic.gti_ia.core.AgentID;
-import es.upv.dsic.gti_ia.core.AgentsConnection;
 import practica3.SuperMente;
-import practica3.Vehiculo;
-import practica3.Mensajes;
 
 import javax.swing.*;
-import javax.swing.text.DefaultCaret;
 import java.awt.event.*;
 import java.util.ArrayList;
 
-import static javax.swing.text.DefaultCaret.ALWAYS_UPDATE;
 
 public class GugelCarView extends JFrame {
     private JButton buttonEjecutar;
@@ -20,11 +15,6 @@ public class GugelCarView extends JFrame {
     private JPanel contentPane;
     private JPanel buttonsPanel;
     private JPanel informationPanel;
-    private JPanel ScannerPanel;
-    private JPanel RadarPanel;
-    private JTextArea scannerTextArea;
-    private JTextArea generalMsgTextArea;
-    private JTextArea radarTextArea;
     private JLabel traceLabel;
     private JPanel canvasPanel;
     private TraceMap traceMap;
@@ -85,28 +75,11 @@ public class GugelCarView extends JFrame {
      * @author David Vargas Carrillo
      */
     private void initComponents(){
-        scannerTextArea.setEditable(false);
-        radarTextArea.setEditable(false);
-        generalMsgTextArea.setEditable(false);
         buttonEjecutar.setEnabled(true);
-
-
-        DefaultCaret caret = (DefaultCaret) scannerTextArea.getCaret();
-        caret.setUpdatePolicy(ALWAYS_UPDATE);
-
-        DefaultCaret caret1 = (DefaultCaret) radarTextArea.getCaret();
-        caret1.setUpdatePolicy(ALWAYS_UPDATE);
-        DefaultCaret caret2 = (DefaultCaret) generalMsgTextArea.getCaret();
-        caret2.setUpdatePolicy(ALWAYS_UPDATE);
-
-
-
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
 
     }
-
-
 
     /**
      * Metodo SET para el indicador del mapa
@@ -118,43 +91,6 @@ public class GugelCarView extends JFrame {
         mapIndicator.setText(mapInd);
     }
 
-    /**
-     * Imprimir texto en el panel Radar
-     *
-     * @author David Vargas Carrillo, Jose Luis Martínez Ortiz
-     * @param radarText informacion recogida por el sensor radar
-     */
-    public void printToRadar(ArrayList<Integer> radarText) {
-        String texto = "";
-        for(Integer i:radarText)
-            texto += i + "   ";
-        radarTextArea.append("\n"+texto);
-    }
-
-    /**
-     * Imprimir texto en el panel Scanner
-     *
-     * @author David Vargas Carrillo, Jose Luis Martínez Ortiz
-     * @param scannerText informacion recogida por el sensor scanner
-     */
-    public void printToScanner(ArrayList<Float> scannerText) {
-        String texto = "";
-        for(Float i:scannerText)
-            texto += i.toString().substring(0,i.toString().indexOf('.') + 2) + "      ";
-        scannerTextArea.append("\n"+texto);
-
-    }
-
-    /**
-     * Imprimir texto en el panel General Message
-     *
-     * @author David Vargas Carrillo
-     * @param message mensaje que se quiere imprimir
-     */
-    public void printToGeneralMsg(String message) {
-
-        generalMsgTextArea.append("\n"+message);
-    }
 
     /**
      * Imprimir la imagen de la traza
