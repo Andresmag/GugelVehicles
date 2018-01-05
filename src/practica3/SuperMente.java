@@ -152,7 +152,26 @@ public class SuperMente extends SingleAgent {
 
                     break;
                 case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
-                    exploracionFinalizada = explorarMapa();
+                    //exploracionFinalizada = explorarMapa();
+
+                    /* Engañar para pruebas */
+                    exploracionFinalizada = true;
+
+                    for (int x = 48; x < 53; ++x){
+                        for (int y = 46; y < 50; ++y){
+                            mapaMundo[y][x] = 3;
+                        }
+                    }
+                    rellenarFilaDePared(100);
+                    for (int i = 0; i < dimensionesMapa; ++i){
+                        mapaMundo[i][100] = 2;
+                    }
+
+                    goalLeft = 48;
+                    goalRight = 52;
+                    goalTop = 46;
+                    goalBottom = 49;
+                    /**/
 
                     System.out.println("Fin explorar mapa");
 
@@ -328,6 +347,11 @@ public class SuperMente extends SingleAgent {
      * @return true si todos los vehiculos han alcanzado el objetivo, false en caso contrario
      */
     private boolean irAlObjetivo() {
+        for (EstadoVehiculo vehiculo : vehiculos){
+            sendMessageVehiculo(ACLMessage.QUERY_REF, "", vehiculo.id);
+            recogerPercepcion(vehiculo);
+        }
+
         // Declarar las 4 rutas
         Stack<String> rutav0, rutav1, rutav2, rutav3;
 
@@ -432,25 +456,15 @@ public class SuperMente extends SingleAgent {
         // Va hacia el objetivo recargando cada vez que sea estrictamente necesario.
         System.out.println("Inicio While "+ vehiculo.battery+ " - condicion="+ruta.size()*vehiculo.consumo+ " Bateria mundo="+bateriaTotal);
         while(ruta.size()*vehiculo.consumo >= 100 && hayBateriaMundo){
-
-            if(vehiculo.battery <= vehiculo.consumo){
-                System.out.println("bateria < consumo -> reposto");
-                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
-                System.out.println("bateria < consumo -> reposto fin");
-
-            } else {
-                nextMove = ruta.pop();
-                System.out.println("Cojo movimiento :"+nextMove);
-                sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(nextMove), vehiculo.id);
-                System.out.println("GV --- Enviado");
-
-
-            }
+            nextMove = ruta.pop();
+            System.out.println("Cojo movimiento :"+nextMove);
+            moverseConBateria(vehiculo, nextMove);
+            System.out.println("GV --- Enviado");
 
             /*Si esto devuelve false, es que no ha podido repostar porque no hay bateria
                 en el mundo, por lo que aborta
             */
-            if(!recogerPercepcion(vehiculo)){//TODO puede pasarle lo mismo que abajo, todavia no me ha salido el camion
+            if(bateriaTotal <= vehiculo.consumo){//TODO puede pasarle lo mismo que abajo, todavia no me ha salido el camion
                 System.out.println("Sin bateria- total:"+bateriaTotal+", battery:"+vehiculo.battery);
                 hayBateriaMundo = false;
             }
@@ -470,8 +484,8 @@ public class SuperMente extends SingleAgent {
                 Supermente recibe
                 Procesando percepción
             */
-            //recogerPercepcion(vehiculo);
-           // System.out.println("VG - recibido ultimo repostage");
+            recogerPercepcion(vehiculo);
+            System.out.println("VG - recibido ultimo repostage");
 
             // Realiza las acciones que le quedan sin recargar
             while (!ruta.isEmpty() && vehiculo.battery > vehiculo.consumo) {
@@ -485,8 +499,8 @@ public class SuperMente extends SingleAgent {
 
 
                 //TODO lo mismo que el de arriba (linea 460)
-                //recogerPercepcion(vehiculo); //?? TODO revisar si es conveniente o no por lo que sea recoger la percepcion
-                //System.out.println("VG - actualizo percepcioon ");
+                recogerPercepcion(vehiculo); //?? TODO revisar si es conveniente o no por lo que sea recoger la percepcion
+                System.out.println("VG - actualizo percepcioon ");
             }
         }
 
@@ -576,10 +590,10 @@ public class SuperMente extends SingleAgent {
             actual = posCosteMasBajo(abiertos);
 
             /** /
-             System.out.println("Método encontrarRuta: el equals y tal");
+            System.out.println("Método encontrarRuta: el equals y tal");
             System.out.println("Actual: x->" + actual.punto.x + " y->" + actual.punto.y);
             System.out.println("Goal: x->" + goal.x + " y->" + goal.y);
-             /**/
+            /**/
             if(actual.punto.equals(goal)){
                 System.out.println("Ruta encontrada para el vehículo "+vehiculo.id.name);
                 //Sacar la lista de acciones

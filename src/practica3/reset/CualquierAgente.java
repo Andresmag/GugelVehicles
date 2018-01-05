@@ -34,7 +34,7 @@ public class CualquierAgente  extends SingleAgent {
     public void execute(){
 
 
-        System.out.println("Enviando");
+        System.out.println("Enviandoñlkjlñkjlñkj");
 
         ACLMessage outbox = new ACLMessage();
         outbox.setSender(getAid());
@@ -46,10 +46,11 @@ public class CualquierAgente  extends SingleAgent {
         outbox.setContent(json.toString());
         System.out.println(json.toString());
         outbox.setPerformative(ACLMessage.REQUEST);
+        outbox.setReceiver(new AgentID("Shenron"));
 
         send(outbox);
 
-        System.out.println("Enviado");
+        System.out.println("Enviadoñlkj");
 
         ACLMessage inbox = null;
 

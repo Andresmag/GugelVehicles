@@ -17,6 +17,8 @@ public class Reset {
         try {
             CualquierAgente ca = new CualquierAgente(new AgentID("HolaGG"));
             ca.start();
+
+            Thread.sleep(10000);
         } catch (Exception e) {
             System.out.println("Error al crear el agente");
         }
