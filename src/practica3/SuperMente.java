@@ -152,9 +152,9 @@ public class SuperMente extends SingleAgent {
 
                     break;
                 case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
-                    exploracionFinalizada = explorarMapa();
+                    //exploracionFinalizada = explorarMapa();
 
-                    /* Engañar para pruebas * /
+                    /* Engañar para pruebas */
                     exploracionFinalizada = true;
 
                     for (int x = 48; x < 53; ++x){
@@ -254,18 +254,25 @@ public class SuperMente extends SingleAgent {
 
                 String nombre = "traza_" + conversationID + "_vehiculos_";
 
-                for (EstadoVehiculo vehiculo : vehiculos){
-                    switch (vehiculo.getTipoVehiculo()){
+                for (int i = 0; i < vehiculos.size(); ++i){
+                    switch (vehiculos.get(i).getTipoVehiculo()){
                         case DRON:
-                            nombre += "dron_";
+                            nombre += "dron" + i + "_";
                             break;
                         case COCHE:
-                            nombre += "coche_";
+                            nombre += "coche" + i + "_";
                             break;
                         case CAMION:
-                            nombre += "camion_";
+                            nombre += "camion" + i + "_";
                             break;
                     }
+                }
+
+                nombre += "llegaron_";
+
+                for (int i = 0; i < vehiculos.size(); ++i){
+                    if (vehiculos.get(i).objetivoAlcanzado)
+                        nombre += i + "_";
                 }
 
                 nombre += ".png";
