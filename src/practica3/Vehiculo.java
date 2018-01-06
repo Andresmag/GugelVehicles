@@ -27,7 +27,7 @@ public class Vehiculo extends SingleAgent {
     public Vehiculo(AgentID aid) throws Exception {
         super(aid);
         controllerID = new AgentID("Girtab");
-        supermenteID = new AgentID("Supermente");
+        supermenteID = new AgentID("Supermente1");
         conversationID = null;
     }
 

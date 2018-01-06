@@ -67,7 +67,7 @@ public class GugelCarView extends JFrame {
         mapIndicator.setText(mapaSeleccionado);
 
         try {
-            superMente = new SuperMente(mapaSeleccionado, new AgentID("Supermente"),this);
+            superMente = new SuperMente(mapaSeleccionado, new AgentID("Supermente1"),this);
         } catch (Exception e) {
             System.out.println("Error al inicializar Supermente en GugelCardView");
             e.printStackTrace();
