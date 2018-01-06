@@ -152,13 +152,19 @@ public class SuperMente extends SingleAgent {
 
                     break;
                 case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
-                    //exploracionFinalizada = explorarMapa();
-
+                    exploracionFinalizada = explorarMapa();
+                    /** /
                     // Engañar para pruebas
                     exploracionFinalizada = true;
 
-                    for (int x = 48; x < 53; ++x){
-                        for (int y = 46; y < 50; ++y){
+                    //Puestas a ojo para el mapa 3
+                    goalLeft = 64;
+                    goalRight = 67;
+                    goalTop = 35;
+                    goalBottom = 37;
+
+                    for (int x = goalLeft; x <= goalRight; ++x){
+                        for (int y = goalTop; y <= goalBottom; ++y){
                             mapaMundo[y][x] = 3;
                         }
                     }
@@ -166,12 +172,7 @@ public class SuperMente extends SingleAgent {
                     for (int i = 0; i < dimensionesMapa; ++i){
                         mapaMundo[i][100] = 2;
                     }
-                    //Puestas a ojo para el mapa 3
-                    goalLeft = 64;
-                    goalRight = 67;
-                    goalTop = 35;
-                    goalBottom = 37;
-
+                    /**/
 
                     System.out.println("Fin explorar mapa");
 
@@ -350,7 +351,7 @@ public class SuperMente extends SingleAgent {
     /**
      * Una vez localizado el objetivo, envia a los vehiculos hacia el mismo
      *
-     * @author David Vargas Carrillo, Ángel Píñar Rivas
+     * @author David Vargas Carrillo, Ángel Píñar Rivas, Diego Iáñez Ávila, Jose Luis Martínez Ortiz
      * @return true si todos los vehiculos han alcanzado el objetivo, false en caso contrario
      */
     private boolean irAlObjetivo() {
@@ -438,18 +439,41 @@ public class SuperMente extends SingleAgent {
             salir = false;
         }
 
+        boolean terminar;
         for(int i=0 ; i<4 ;i++){
             if(comprobarCoincidenciaObjetivo(i, goalX, goalY)){
+                terminar = false;
+
+                for(int y=goalTop; y<= goalBottom && !terminar ; y++) {
+                    for (int x = goalLeft; x <= goalRight && !terminar ; x++) {
+                        if(esObjetivo(x,y) && !comprobarPosicionOcupada(x,y,goalX,goalY)){
+                            terminar = true;
+                            goalX[i] = x;
+                            goalY[i] = y;
+                        }
+                    }
+                }
+
+
                 System.out.println("ERROR LOCALIZADO (irAlObjetivo) Hay dos vehiculos con el mismo objetivo");
                 try {
                     Thread.sleep(10000);
                 } catch(Exception e){
                     System.out.println("EXCEPCION DE ERROR LOCALIZADO");
                 }
+
             }
+
+
         }
 
 
+        for (int i=0 ; i<4 ; ++i) {
+            System.out.println("Objetivos iniciales vehiculo ordenado "+i+": ");
+            System.out.println("x:" + objInicialX[i] + " y: " + objInicialY[i]);
+            System.out.println("Objetivos alterados vehiculo ordenado "+i+": ");
+            System.out.println("x:" + goalX[i] + " y: " + goalY[i]);
+        }
 
         // Ahora que tenemos los objetivos, obtenemos secuencia y ejecutamos
         // así, para que tengan en cuenta la posición de los vehiculos en el objetivo y no se choquen con ellos
@@ -460,12 +484,6 @@ public class SuperMente extends SingleAgent {
 
         }
 
-        for (int i=0 ; i<4 ; ++i) {
-            System.out.println("Objetivos iniciales vehiculo ordenado "+i+": ");
-            System.out.println("x:" + objInicialX[i] + " y: " + objInicialY[i]);
-            System.out.println("Objetivos alterados vehiculo ordenado "+i+": ");
-            System.out.println("x:" + goalX[i] + " y: " + goalY[i]);
-        }
 
 
         // Todo revisar criterio de aceptacion de cantidad de vehiculos que llegan
