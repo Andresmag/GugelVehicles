@@ -1081,6 +1081,8 @@ public class SuperMente extends SingleAgent {
             }
         }
 
+        mapaMundo[vehiculo.coor_y][vehiculo.coor_x] = 4;
+
         view.updateMap(vehiculo.coor_x, vehiculo.coor_y, radar, ancho, inicio);
     }
 
