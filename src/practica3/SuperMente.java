@@ -138,7 +138,7 @@ public class SuperMente extends SingleAgent {
                     break;
                 case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
                     exploracionFinalizada = explorarMapa();
-                    /**
+                    /*
                     // Engañar para pruebas
                     exploracionFinalizada = true;
 
@@ -157,7 +157,7 @@ public class SuperMente extends SingleAgent {
                     for (int i = 0; i < DIMENSIONES; ++i){
                         mapaMundo[i][100] = 2;
                     }
-                    **/
+                    */
 
                     System.out.println("Fin explorar mapa");
 
@@ -302,7 +302,7 @@ public class SuperMente extends SingleAgent {
 
     /** Ordena al vehiculo que haga checkin y recibe la respuesta
      *
-     * @author Diego Iáñez Ávila
+     * @author Diego Iáñez Ávila, Andrés Molina López
      */
     private void registrarVehiculo(EstadoVehiculo vehiculo){
         sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_CHECKIN), vehiculo.id);
@@ -321,18 +321,6 @@ public class SuperMente extends SingleAgent {
                 vehiculo.setTipoVehiculo(TipoVehiculo.COCHE);
                 break;
         }
-
-        /*
-        if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_HELICOPTERO)){
-            vehiculo.setTipoVehiculo(TipoVehiculo.DRON);
-        }
-        else if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_CAMION)){
-            vehiculo.setTipoVehiculo(TipoVehiculo.CAMION);
-        }
-        else if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_COCHE)){
-            vehiculo.setTipoVehiculo(TipoVehiculo.COCHE);
-        }
-        */
 
         System.out.println("Vehículo registrado.");
     }
@@ -943,10 +931,11 @@ public class SuperMente extends SingleAgent {
     /**
      * Moverse en una dirección recargando si es necesario y recogiendo la percepción
      *
-     * @author Diego Iáñez Ávila
+     * @author Diego Iáñez Ávila, Andrés Molina López, David Vargas Carrillo
      * @param direccion Por ejemplo, Mensajes.AGENT_COM_ACCION_MV_N para moverse al norte
      */
     private void moverseConBateria(EstadoVehiculo vehiculo, String direccion){
+        // Comprueba si su consumo de batería es mayor que su batería restante
         if (vehiculo.battery <= vehiculo.consumo){
             // Recargar
             sendMessageVehiculo(ACLMessage.REQUEST, jsonComando(Mensajes.AGENT_COM_ACCION_REFUEL), vehiculo.id);
