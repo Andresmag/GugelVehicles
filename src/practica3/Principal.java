@@ -16,7 +16,7 @@ public class Principal {
         // Creación e inicialización de los vehículos
         try {
             for(int i=0; i<4; i++){
-                Vehiculo vehiculo = new Vehiculo(new AgentID("vehículo" + i));
+                Vehiculo vehiculo = new Vehiculo(new AgentID("vehiculo" + i));
                 vehiculo.start();
             }
         } catch (Exception e) {
