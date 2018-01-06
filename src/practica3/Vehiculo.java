@@ -11,14 +11,11 @@ import es.upv.dsic.gti_ia.core.SingleAgent;
  */
 public class Vehiculo extends SingleAgent {
 
-
-    private String password;                        // @todo revisar la funcionalidad de password
+    // DATOS MIEMBROS
     private AgentID controllerID, supermenteID;
     private String conversationID;
     private String replyWith = null;
     private int status;
-
-   // private GugelCarView view;
 
     /**
      * Constructor
@@ -37,7 +34,7 @@ public class Vehiculo extends SingleAgent {
     /**
      * Método de inicialización del agente
      *
-     * @author Andrés Molina López ft. Diego, Jose y Ángel
+     * @author Andrés Molina López, Diego Iáñez Ávila, Ángel Píñar Rivas, Jose Luis Martínez Ortiz
      */
     @Override
     public void init(){
@@ -86,7 +83,6 @@ public class Vehiculo extends SingleAgent {
         System.out.println(getAid().toString() + " finalizado.");
     }
 
-    // @todo Revisar redundancia aqui, entre checkin() y hacerCheckin()
     /**
      * Estado Haciendo checkin
      * @author Diego Iáñez Ávila

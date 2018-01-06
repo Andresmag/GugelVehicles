@@ -15,27 +15,24 @@ import java.util.*;
 
 /**
  * Supermente, clase controladora de los vehículos zombies.
- *
- *
  */
 
 public class SuperMente extends SingleAgent {
 
     // DATOS MIEMBROS
     private AgentID controllerID;
-    private String mapa;                // Si va a loguearse tiene que saber a que mapa
+    private String mapa;
     private String conversationID;
     private String replyWith;
     private GugelCarView view;
     private int status;
-    /////////////////////////////////////////////
 
     // Datos que nos indican los estados de los vehiculos (posicion, bateria, tipo, ...)
     private ArrayList<EstadoVehiculo> vehiculos;
 
     // Memoria del mundo que ha pisado el agente y donde se encuentra actualmente
-    private int dimensionesMapa = 1000;
-    private int [][] mapaMundo = new int[dimensionesMapa][dimensionesMapa];
+    final private int DIMENSIONES = 1000;
+    private int [][] mapaMundo = new int[DIMENSIONES][DIMENSIONES];
     private int goalLeft,goalRight,goalTop,goalBottom;
 
     // Batería total en el mundo. Se actualiza cada vez que se procesa la percepción de un vehículo.
@@ -45,32 +42,17 @@ public class SuperMente extends SingleAgent {
     // Memoria interna con las direcciones
     //private final ArrayList<String> direcciones;
 
-    // Cosas de la exploración
-    private boolean exploracionIniciada = false;
+    // Datos empleados para exploración del mapa
+    private boolean exploracionIniciada;
     private boolean comienzaArriba;
     private int explorandoX;
     private int explorandoY;
-    private boolean explorandoIzquierda = true;
-    private boolean explorandoUltimaFila = false;
+    private boolean explorandoIzquierda;
+    private boolean explorandoUltimaFila;
 
-
-    /**
-     * Constructor para la view
-     * @author Diego Iáñez Ávila, Andrés Molina López
-     * /
-    public SuperMente(String map, AgentID aid, GugelCarView v) throws Exception {
-        super(aid);
-
-        mapa = map;
-        controllerID = new AgentID("Girtab");
-        view = v;
-        status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
-    }
-
-    // He tenido que crear este segundo constructor mientras la view no funciona para que no
-    // de fallos y deje compilar
     /**
      * Constructor
+     *
      * @author Diego Iáñez Ávila, Andrés Molina López
      */
     public SuperMente(String map, AgentID aid,GugelCarView v) throws Exception {
@@ -79,11 +61,14 @@ public class SuperMente extends SingleAgent {
         mapa = map;
         controllerID = new AgentID("Girtab");
         view = v;
-        status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
+        vehiculos = new ArrayList<>();
         goalLeft = 1000;
         goalRight = 0;
         goalTop = 1000;
         goalBottom = 0;
+        exploracionIniciada = false;
+        explorandoIzquierda = true;
+        explorandoUltimaFila = false;
     }
 
     /**
@@ -93,16 +78,16 @@ public class SuperMente extends SingleAgent {
      */
     @Override
     public void init(){
-        /*FUTURO INIT*/
 
         System.out.println("Iniciando...");
 
-        // Inicializar algunas estructuras
-        vehiculos = new ArrayList<>();
-
+        // Inicializar vector con los estados de los vehiculos
         for(int i=0; i<4; i++){
             vehiculos.add(new EstadoVehiculo(new AgentID("coche" + i)));
         }
+
+        // Pasando al primer estado
+        status = Mensajes.SUPERMENTE_STATUS_SUSCRIBIENDO;
 
         System.out.println("Iniciado");
 
@@ -153,7 +138,7 @@ public class SuperMente extends SingleAgent {
                     break;
                 case Mensajes.SUPERMENTE_STATUS_EXPLORACION:
                     exploracionFinalizada = explorarMapa();
-                    /** /
+                    /**
                     // Engañar para pruebas
                     exploracionFinalizada = true;
 
@@ -169,10 +154,10 @@ public class SuperMente extends SingleAgent {
                         }
                     }
                     rellenarFilaDePared(100);
-                    for (int i = 0; i < dimensionesMapa; ++i){
+                    for (int i = 0; i < DIMENSIONES; ++i){
                         mapaMundo[i][100] = 2;
                     }
-                    /**/
+                    **/
 
                     System.out.println("Fin explorar mapa");
 
@@ -204,7 +189,8 @@ public class SuperMente extends SingleAgent {
     }
 
 
-    /** Manda un cancel al controlador para así poder iniciar una nueva sesión posteriormente
+    /**
+     * Manda un cancel al controlador para así poder iniciar una nueva sesión posteriormente
      *
      * @author Ángel Píñar Rivas, Diego Iáñez Ávila
      * @return El mensaje con la traza
@@ -324,6 +310,19 @@ public class SuperMente extends SingleAgent {
         ACLMessage inbox = receiveMessage();
         String tipoVehiculo = inbox.getContent();
 
+        switch (tipoVehiculo){
+            case Mensajes.VEHICLE_TYPE_HELICOPTERO:
+                vehiculo.setTipoVehiculo(TipoVehiculo.DRON);
+                break;
+            case Mensajes.VEHICLE_TYPE_CAMION:
+                vehiculo.setTipoVehiculo(TipoVehiculo.CAMION);
+                break;
+            case Mensajes.VEHICLE_TYPE_COCHE:
+                vehiculo.setTipoVehiculo(TipoVehiculo.COCHE);
+                break;
+        }
+
+        /*
         if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_HELICOPTERO)){
             vehiculo.setTipoVehiculo(TipoVehiculo.DRON);
         }
@@ -333,6 +332,7 @@ public class SuperMente extends SingleAgent {
         else if (tipoVehiculo.equals(Mensajes.VEHICLE_TYPE_COCHE)){
             vehiculo.setTipoVehiculo(TipoVehiculo.COCHE);
         }
+        */
 
         System.out.println("Vehículo registrado.");
     }
@@ -976,7 +976,7 @@ public class SuperMente extends SingleAgent {
      * @param fila
      */
     private void rellenarFilaDePared(int fila){
-        for (int x = 0; x < dimensionesMapa; ++x){
+        for (int x = 0; x < DIMENSIONES; ++x){
             mapaMundo[fila][x] = 2;
         }
     }
