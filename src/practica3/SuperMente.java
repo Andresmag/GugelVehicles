@@ -441,7 +441,7 @@ public class SuperMente extends SingleAgent {
 
         boolean terminar;
         for(int i=0 ; i<4 ;i++){
-            if(comprobarCoincidenciaObjetivo(i, goalX, goalY)){
+            if(comprobarCoincidenciaObjetivo(i, goalX, goalY) || !esObjetivo(goalX[i], goalY[i])){
                 terminar = false;
 
                 for(int y=goalTop; y<= goalBottom && !terminar ; y++) {
@@ -456,12 +456,13 @@ public class SuperMente extends SingleAgent {
 
 
                 System.out.println("ERROR LOCALIZADO (irAlObjetivo) Hay dos vehiculos con el mismo objetivo");
+                /**
                 try {
                     Thread.sleep(10000);
                 } catch(Exception e){
                     System.out.println("EXCEPCION DE ERROR LOCALIZADO");
                 }
-
+                 **/
             }
 
 
@@ -480,8 +481,7 @@ public class SuperMente extends SingleAgent {
         for (int i=0 ; i<4 ; ++i) {
             rutav0 = encontrarRuta(goalX[i], goalY[i], vordenados.get(i));
             guiarVehiculo(rutav0, vordenados.get(i));
-            mapaMundo[goalY[i]][goalX[i]] = 4;
-
+            mapaMundo[vordenados.get(i).coor_y][vordenados.get(i).coor_x] = 4;
         }
 
 
