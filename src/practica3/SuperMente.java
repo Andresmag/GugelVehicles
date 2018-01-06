@@ -731,7 +731,10 @@ public class SuperMente extends SingleAgent {
             //System.out.println("Método encontrarRuta: Terminado bucle del contains y tal");
 
         } // Fin while
+        System.out.println("-------------------------------------------------");
         System.out.println("Metodo encontrarRuta: No hay solución, algo falla");
+        System.out.println("Se estaba intentando ir a: x=" + goalX + " y=" + goalY);
+        System.out.println("-------------------------------------------------");
         // Si se devuelve este acciones (vacio) es que no hay solucion
         return acciones;
     }
