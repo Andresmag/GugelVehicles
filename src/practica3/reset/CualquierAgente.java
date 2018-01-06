@@ -17,7 +17,7 @@ public class CualquierAgente  extends SingleAgent {
     /**
      * Método de inicialización del agente
      *
-     * @author Andrés Molina López ft. Diego, Jose y Ángel
+     * @author Andrés Molina López, Diego Iáñez Ávila, Ángel Píñar Rivas, Jose Luis Martínez Ortiz
      */
     @Override
     public void init(){

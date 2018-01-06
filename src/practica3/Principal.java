@@ -8,39 +8,22 @@ import practica3.GUI.GugelCarView;
 public class Principal {
 
     public static void main(String[] args) {
-        // Ventana de captura de nombre y mapa
-      /*    PARTE FINAL DE LA P2
-        AgentNameCapture newCapture = new AgentNameCapture();
-        newCapture.setVisible(true);
-
-        GugelCarView gcv = new GugelCarView(newCapture.getMapaSeleccionado(),newCapture.getNombreAgente());
-
-        gcv.setVisible(true);
-
-      */
-
-        /**
-         * PARTE PARA TEST Y PRUEBAS INTERNAS
-         * hasta que se añada la GUI
-         */
 
         // Conectarse a la plataforma
         AgentsConnection.connect("isg2.ugr.es", 6000,
                 Mensajes.AGENT_HOST, Mensajes.AGENT_USER, Mensajes.AGENT_PASS, false);
 
+        // Creación e inicialización de los vehículos
         try {
             for(int i=0; i<4; i++){
-                Vehiculo vehiculo = new Vehiculo(new AgentID("coche" + i));
+                Vehiculo vehiculo = new Vehiculo(new AgentID("vehículo" + i));
                 vehiculo.start();
             }
-
-            //SuperMente einstein = new SuperMente("map1", new AgentID("Supermente"));
-            //einstein.start();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        // Captura del nombre Supermente e inicialización de la GUI
         AgentNameCapture newCapture = new AgentNameCapture();
         newCapture.setVisible(true);
 
