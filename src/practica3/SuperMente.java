@@ -83,7 +83,7 @@ public class SuperMente extends SingleAgent {
 
         // Inicializar vector con los estados de los vehiculos
         for(int i=0; i<4; i++){
-            vehiculos.add(new EstadoVehiculo(new AgentID("coche" + i)));
+            vehiculos.add(new EstadoVehiculo(new AgentID("vehiculo" + i)));
         }
 
         // Pasando al primer estado
