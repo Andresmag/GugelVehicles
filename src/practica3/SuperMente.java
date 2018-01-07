@@ -31,7 +31,7 @@ public class SuperMente extends SingleAgent {
     private ArrayList<EstadoVehiculo> vehiculos;
 
     // Memoria del mundo que ha pisado el agente y donde se encuentra actualmente
-    final private int DIMENSIONES = 1000;
+    final private int DIMENSIONES = 1005;
     private int [][] mapaMundo = new int[DIMENSIONES][DIMENSIONES];
     private int goalLeft,goalRight,goalTop,goalBottom;
 
@@ -104,7 +104,7 @@ public class SuperMente extends SingleAgent {
     public void execute(){
         boolean finalizar = false;
         boolean exploracionFinalizada = false;
-        boolean tenemos_dron = false;
+        boolean tenemos_dron;
 
         while(!finalizar) {
             switch (status) {
@@ -114,6 +114,8 @@ public class SuperMente extends SingleAgent {
                     status = Mensajes.SUPERMENTE_STATUS_CONTANDOVEHICULOS;
                     break;
                 case Mensajes.SUPERMENTE_STATUS_CONTANDOVEHICULOS:
+
+                    tenemos_dron = false;
 
                     for(EstadoVehiculo vehiculo: vehiculos){
                         registrarVehiculo(vehiculo);
