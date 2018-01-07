@@ -34,7 +34,7 @@ public class CualquierAgente  extends SingleAgent {
     public void execute(){
 
 
-        System.out.println("Enviandoñlkjlñkjlñkj");
+        System.out.println("Enviando");
 
         ACLMessage outbox = new ACLMessage();
         outbox.setSender(getAid());
@@ -50,7 +50,7 @@ public class CualquierAgente  extends SingleAgent {
 
         send(outbox);
 
-        System.out.println("Enviadoñlkj");
+        System.out.println("Enviado");
 
         ACLMessage inbox = null;
 
